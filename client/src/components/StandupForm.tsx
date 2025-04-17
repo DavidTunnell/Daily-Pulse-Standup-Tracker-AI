@@ -30,7 +30,7 @@ import { Loader2, CheckCircle, AlertCircle, LogOut, CalendarIcon } from "lucide-
 const formSchema = z.object({
   yesterday: z.string().min(1, "Please share what you worked on yesterday"),
   today: z.string().min(1, "Please share what you're working on today"),
-  blockers: z.string().min(1, "Please share any blockers or enter 'None'"),
+  blockers: z.string().optional(),
   highlights: z.string().optional(),
   standupDate: z.date({
     required_error: "Please select a date for this standup",
@@ -182,14 +182,15 @@ const StandupForm = () => {
                 name="blockers"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Any blockers? <span className="text-red-500">*</span>
+                    <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                      Any blockers?
+                      <span className="ml-2 text-xs text-gray-500 font-normal">(optional)</span>
                     </FormLabel>
                     <FormControl>
                       <Textarea 
                         {...field} 
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 transition-all duration-200 min-h-[100px]"
-                        placeholder="Enter 'None' if you don't have any blockers"
+                        placeholder="Share any challenges or obstacles you're facing (optional)"
                       />
                     </FormControl>
                     <FormMessage className="text-sm text-red-500" />

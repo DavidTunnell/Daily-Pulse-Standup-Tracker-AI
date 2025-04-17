@@ -23,7 +23,7 @@ export const standups = pgTable("standups", {
   userId: integer("user_id").notNull().references(() => users.id),
   yesterday: text("yesterday").notNull(),
   today: text("today").notNull(),
-  blockers: text("blockers").notNull(),
+  blockers: text("blockers"),
   highlights: text("highlights"),
   standupDate: date("standup_date").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

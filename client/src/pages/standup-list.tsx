@@ -140,10 +140,13 @@ function EditStandupForm({ standup, onSubmit, isSubmitting, onCancel }: EditStan
           name="blockers"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Any blockers?</FormLabel>
+              <FormLabel className="flex items-center">
+                Any blockers?
+                <span className="ml-2 text-xs text-gray-500 font-normal">(optional)</span>
+              </FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Issues preventing progress, help needed, etc."
+                  placeholder="Share any challenges or obstacles you're facing (optional)"
                   className="min-h-[80px]"
                   {...field}
                 />
