@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { insertStandupSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 import {
   Form,
@@ -19,13 +20,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, LogOut } from "lucide-react";
 
-// Extend the insertStandupSchema with custom validation
-const formSchema = insertStandupSchema.extend({
+// Create a form schema for just the user input fields (without userId)
+const formSchema = z.object({
   yesterday: z.string().min(1, "Please share what you worked on yesterday"),
   today: z.string().min(1, "Please share what you're working on today"),
   blockers: z.string().min(1, "Please share any blockers or enter 'None'"),
+  highlights: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,6 +41,7 @@ const defaultValues: FormValues = {
 
 const StandupForm = () => {
   const { toast } = useToast();
+  const { user, logoutMutation } = useAuth();
   const [formState, setFormState] = useState<"form" | "success" | "error">("form");
   
   const form = useForm<FormValues>({
@@ -65,6 +68,16 @@ const StandupForm = () => {
   });
 
   const onSubmit = (data: FormValues) => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You must be logged in to submit a standup."
+      });
+      return;
+    }
+    
+    // Add the userId to the form data
     standupMutation.mutate(data);
   };
 
@@ -79,8 +92,31 @@ const StandupForm = () => {
 
   return (
     <Card className="w-full max-w-xl bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
-      <CardHeader className="px-6 py-8 text-center">
-        <CardTitle className="text-2xl font-semibold text-gray-800 mb-2">Daily Standup</CardTitle>
+      <CardHeader className="px-6 py-8">
+        <div className="flex justify-between items-center mb-4">
+          <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-gray-600">
+                Logged in as <span className="font-semibold">{user.username}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                {logoutMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
+                <span className="ml-1">Logout</span>
+              </Button>
+            </div>
+          )}
+        </div>
         <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
       </CardHeader>
       

@@ -22,6 +22,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/standups", ensureAuthenticated, async (req, res) => {
     try {
       // Include the userId from the authenticated user
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const standup = {
         ...req.body,
         userId: req.user.id
