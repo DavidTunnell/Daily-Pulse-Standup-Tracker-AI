@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Standup } from "@shared/schema";
-import { Logo } from "@/components/Logo";
+
 
 import {
   Card,
