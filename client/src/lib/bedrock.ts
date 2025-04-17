@@ -20,7 +20,7 @@ const bedrockClient = new BedrockRuntimeClient({
 
 export async function generateWithClaude(
   messages: ClaudeMessage[],
-  modelId: string = "anthropic.claude-3-sonnet" // Standard model ID format for AWS Bedrock
+  modelId: string = "anthropic.claude-3-5-haiku-20240307-v1:0" // Using Claude 3.5 Haiku model that user has access to
 ): Promise<ClaudeResponse> {
   try {
     const promptMessages = messages.map((message) => ({

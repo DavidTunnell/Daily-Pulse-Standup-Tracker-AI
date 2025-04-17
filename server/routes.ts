@@ -190,7 +190,7 @@ Please provide a detailed and insightful analysis based on the user's request.
       };
 
       const command = new InvokeModelCommand({
-        modelId: "anthropic.claude-3-sonnet", // Standard model ID format for AWS Bedrock
+        modelId: "anthropic.claude-3-5-haiku-20240307-v1:0", // Using Claude 3.5 Haiku model that user has access to
         contentType: "application/json",
         accept: "application/json",
         body: JSON.stringify(payload)
