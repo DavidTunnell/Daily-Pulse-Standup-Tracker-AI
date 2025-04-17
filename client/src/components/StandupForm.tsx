@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Loader2, CheckCircle, AlertCircle, LogOut, CalendarIcon } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, LogOut, CalendarIcon, User } from "lucide-react";
 
 // Create a form schema for just the user input fields (without userId)
 const formSchema = z.object({
@@ -114,8 +114,19 @@ const StandupForm = () => {
           {user && (
             <div className="flex items-center gap-2">
               <div className="text-sm text-gray-600">
-                Logged in as <span className="font-semibold">{user.username}</span>
+                Logged in as <a href="/profile" className="font-semibold hover:underline">{user.username}</a>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                asChild
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <a href="/profile">
+                  <User className="h-4 w-4 mr-1" />
+                  Profile
+                </a>
+              </Button>
               <Button 
                 variant="ghost" 
                 size="sm"

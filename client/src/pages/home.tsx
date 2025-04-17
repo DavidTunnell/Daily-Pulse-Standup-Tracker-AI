@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import { Link } from 'wouter';
-import { ClipboardList, BarChart } from 'lucide-react';
+import { ClipboardList, BarChart, User } from 'lucide-react';
 import StandupForm from "@/components/StandupForm";
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -16,6 +16,12 @@ export default function Home() {
       </Helmet>
       
       <div className="fixed top-4 right-4 flex space-x-2">
+        <Button variant="outline" asChild size="sm" className="shadow-sm">
+          <Link to="/profile">
+            <User className="h-4 w-4 mr-2" />
+            Profile
+          </Link>
+        </Button>
         <Button variant="outline" asChild size="sm" className="shadow-sm">
           <Link to="/analysis">
             <BarChart className="h-4 w-4 mr-2" />
