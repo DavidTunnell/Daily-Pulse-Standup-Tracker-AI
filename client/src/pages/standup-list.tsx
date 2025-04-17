@@ -1,11 +1,12 @@
 import { useState, Fragment } from "react";
 import { Helmet } from "react-helmet";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { getQueryFn, queryClient } from "@/lib/queryClient";
+import { getQueryFn, queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { Standup } from "@shared/schema";
+import { Standup, InsertStandup } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Table,

@@ -11,6 +11,9 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   createStandup(standup: InsertStandup): Promise<Standup>;
+  getStandupById(id: number): Promise<Standup | undefined>;
+  updateStandup(id: number, standup: InsertStandup): Promise<Standup>;
+  deleteStandup(id: number): Promise<void>;
   getAllStandups(): Promise<Standup[]>;
   sessionStore: session.Store;
 }
@@ -55,6 +58,31 @@ export class DatabaseStorage implements IStorage {
 
   async getAllStandups(): Promise<Standup[]> {
     return await db.select().from(standups).orderBy(desc(standups.createdAt));
+  }
+  
+  async getStandupById(id: number): Promise<Standup | undefined> {
+    const [standup] = await db.select().from(standups).where(eq(standups.id, id));
+    return standup;
+  }
+  
+  async updateStandup(id: number, insertStandup: InsertStandup): Promise<Standup> {
+    // Ensure highlights is null if not provided
+    const dataToUpdate = {
+      ...insertStandup,
+      highlights: insertStandup.highlights || null
+    };
+    
+    const [standup] = await db
+      .update(standups)
+      .set(dataToUpdate)
+      .where(eq(standups.id, id))
+      .returning();
+    
+    return standup;
+  }
+  
+  async deleteStandup(id: number): Promise<void> {
+    await db.delete(standups).where(eq(standups.id, id));
   }
 }
 
