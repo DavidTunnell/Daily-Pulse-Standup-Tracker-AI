@@ -91,8 +91,13 @@ export default function StandupAnalysis() {
     },
     onError: (error: Error) => {
       console.error("Error analyzing standups:", error);
+      
+      // Check if it's a rate limit or quota error
+      const isQuotaError = error.message.includes("quota exceeded") || 
+                           error.message.includes("insufficient_quota");
+      
       toast({
-        title: "Analysis failed",
+        title: isQuotaError ? "API Quota Exceeded" : "Analysis Failed",
         description: error.message || "Failed to analyze standups. Please try again.",
         variant: "destructive",
       });

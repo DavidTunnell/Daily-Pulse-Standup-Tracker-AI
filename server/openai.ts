@@ -29,9 +29,22 @@ export async function analyzeStandup(standupData: any, prompt: string): Promise<
     });
 
     return response.choices[0].message.content || "Sorry, I couldn't analyze the standup data.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error analyzing standup data:", error);
-    throw new Error("Failed to analyze standup data");
+    
+    // Check if it's a rate limit error from OpenAI
+    const isRateLimitError = 
+      typeof error === 'object' && 
+      error !== null && 
+      (error.status === 429 || 
+       (error.error && typeof error.error === 'object' && error.error.code === 'insufficient_quota'));
+    
+    if (isRateLimitError) {
+      throw new Error("OpenAI API quota exceeded. Please try again later or contact the administrator to update the API key.");
+    }
+    
+    // For other errors
+    throw new Error("Failed to analyze standup data. Please try again later.");
   }
 }
 
@@ -67,8 +80,20 @@ export async function generatePromptSuggestions(standupData: any): Promise<strin
     } catch (e) {
       return getDefaultPrompts();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating prompts:", error);
+    
+    // For rate limit errors, log more clearly but still return default prompts
+    const isRateLimitError = 
+      typeof error === 'object' && 
+      error !== null && 
+      (error.status === 429 || 
+       (error.error && typeof error.error === 'object' && error.error.code === 'insufficient_quota'));
+    
+    if (isRateLimitError) {
+      console.log("OpenAI API quota exceeded when generating prompts. Using default prompts instead.");
+    }
+    
     return getDefaultPrompts();
   }
 }

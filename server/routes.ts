@@ -145,7 +145,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ analysis });
     } catch (error) {
       console.error("Error analyzing standups:", error);
-      res.status(500).json({ message: "Failed to analyze standups" });
+      
+      // Pass more specific error messages to the client
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze standups";
+      res.status(500).json({ message: errorMessage });
     }
   });
 
