@@ -114,6 +114,7 @@ export default function StandupList() {
                   <TableHead>Yesterday</TableHead>
                   <TableHead>Today</TableHead>
                   <TableHead>Blockers</TableHead>
+                  <TableHead>Highlights</TableHead>
                   <TableHead>Author</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -142,6 +143,9 @@ export default function StandupList() {
                       <TableCell className="truncate max-w-[200px]">
                         {standup.blockers}
                       </TableCell>
+                      <TableCell className="truncate max-w-[200px]">
+                        {standup.highlights || "—"}
+                      </TableCell>
                       <TableCell>
                         {isOwnStandup(standup) ? (
                           <span className="text-blue-600 font-medium">You</span>
@@ -164,7 +168,7 @@ export default function StandupList() {
                     </TableRow>
                     {expandedRow === standup.id && (
                       <TableRow className="bg-gray-50">
-                        <TableCell colSpan={7} className="p-4">
+                        <TableCell colSpan={8} className="p-4">
                           <div className="mb-4">
                             <h3 className="font-medium text-gray-900 mb-2">
                               Standup for {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
