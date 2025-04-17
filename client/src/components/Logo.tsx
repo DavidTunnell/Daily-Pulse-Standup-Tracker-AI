@@ -1,8 +1,8 @@
 import React from "react";
-import logoImage from "@/assets/dailypulse-logo.png";
+import logoImage from "@/assets/dailypulse-logo-transparent.png";
 
 interface LogoProps {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   withText?: boolean;
   className?: string;
   textClassName?: string;
@@ -15,9 +15,10 @@ export function Logo({
   textClassName = ""
 }: LogoProps) {
   const sizeClasses = {
-    sm: "h-8",
-    md: "h-10",
-    lg: "h-16",
+    sm: "h-10",
+    md: "h-16",
+    lg: "h-24",
+    xl: "h-32",
   };
 
   return (
@@ -25,7 +26,7 @@ export function Logo({
       <img
         src={logoImage}
         alt="DailyPulse Logo"
-        className={`${sizeClasses[size]} w-auto mr-2`}
+        className={`${sizeClasses[size]} w-auto ${withText ? 'mr-2' : ''}`}
       />
       {withText && (
         <span className={`font-semibold text-gray-800 ${textClassName}`}>

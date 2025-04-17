@@ -105,8 +105,8 @@ const StandupForm = () => {
       <CardHeader className="px-6 py-8">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <Logo size="md" withText={false} />
-            <div>
+            <Logo size="lg" withText={false} />
+            <div className="ml-3">
               <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
               <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
             </div>
