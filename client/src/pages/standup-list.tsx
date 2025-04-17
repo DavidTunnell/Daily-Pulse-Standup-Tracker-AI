@@ -408,125 +408,124 @@ export default function StandupList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {standups.map((standup) => (
-                  <React.Fragment key={standup.id}>
-                    <TableRow
-                      className={`${
-                        isOwnStandup(standup) ? "bg-blue-50" : ""
-                      } hover:bg-gray-50 cursor-pointer`}
-                      onClick={() => toggleExpandRow(standup.id)}
-                    >
-                      <TableCell className="font-medium">
-                        {formatDate(standup.createdAt)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
-                      </TableCell>
-                      <TableCell className="truncate max-w-[200px]">
-                        {standup.yesterday}
-                      </TableCell>
-                      <TableCell className="truncate max-w-[200px]">
-                        {standup.today}
-                      </TableCell>
-                      <TableCell className="truncate max-w-[200px]">
-                        {standup.blockers}
-                      </TableCell>
-                      <TableCell className="truncate max-w-[200px]">
-                        {standup.highlights || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {isOwnStandup(standup) ? (
-                          <span className="text-blue-600 font-medium">You</span>
-                        ) : (
-                          <span>User #{standup.userId}</span>
+                {standups.map((standup) => [
+                  <TableRow
+                    key={`row-${standup.id}`}
+                    className={`${
+                      isOwnStandup(standup) ? "bg-blue-50" : ""
+                    } hover:bg-gray-50 cursor-pointer`}
+                    onClick={() => toggleExpandRow(standup.id)}
+                  >
+                    <TableCell className="font-medium">
+                      {formatDate(standup.createdAt)}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
+                    </TableCell>
+                    <TableCell className="truncate max-w-[200px]">
+                      {standup.yesterday}
+                    </TableCell>
+                    <TableCell className="truncate max-w-[200px]">
+                      {standup.today}
+                    </TableCell>
+                    <TableCell className="truncate max-w-[200px]">
+                      {standup.blockers}
+                    </TableCell>
+                    <TableCell className="truncate max-w-[200px]">
+                      {standup.highlights || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {isOwnStandup(standup) ? (
+                        <span className="text-blue-600 font-medium">You</span>
+                      ) : (
+                        <span>User #{standup.userId}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpandRow(standup.id);
+                          }}
+                        >
+                          {expandedRow === standup.id ? "Hide" : "View"}
+                        </Button>
+                        
+                        {isOwnStandup(standup) && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleEditStandup(standup, e)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleDeleteStandup(standup, e)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </>
                         )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpandRow(standup.id);
-                            }}
-                          >
-                            {expandedRow === standup.id ? "Hide" : "View"}
-                          </Button>
-                          
-                          {isOwnStandup(standup) && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => handleEditStandup(standup, e)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => handleDeleteStandup(standup, e)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </>
+                      </div>
+                    </TableCell>
+                  </TableRow>,
+                  expandedRow === standup.id && (
+                    <TableRow key={`expanded-${standup.id}`} className="bg-gray-50">
+                      <TableCell colSpan={8} className="p-4">
+                        <div className="mb-4">
+                          <h3 className="font-medium text-gray-900 mb-2">
+                            Standup for {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            Submitted on {formatDate(standup.createdAt)}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h3 className="font-medium text-gray-900 mb-2">
+                              Yesterday
+                            </h3>
+                            <p className="text-gray-700 whitespace-pre-wrap">
+                              {standup.yesterday}
+                            </p>
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900 mb-2">
+                              Today
+                            </h3>
+                            <p className="text-gray-700 whitespace-pre-wrap">
+                              {standup.today}
+                            </p>
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900 mb-2">
+                              Blockers
+                            </h3>
+                            <p className="text-gray-700 whitespace-pre-wrap">
+                              {standup.blockers}
+                            </p>
+                          </div>
+                          {standup.highlights && (
+                            <div>
+                              <h3 className="font-medium text-gray-900 mb-2">
+                                Highlights
+                              </h3>
+                              <p className="text-gray-700 whitespace-pre-wrap">
+                                {standup.highlights}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </TableCell>
                     </TableRow>
-                    {expandedRow === standup.id && (
-                      <TableRow className="bg-gray-50">
-                        <TableCell colSpan={8} className="p-4">
-                          <div className="mb-4">
-                            <h3 className="font-medium text-gray-900 mb-2">
-                              Standup for {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
-                            </h3>
-                            <p className="text-xs text-gray-500">
-                              Submitted on {formatDate(standup.createdAt)}
-                            </p>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <h3 className="font-medium text-gray-900 mb-2">
-                                Yesterday
-                              </h3>
-                              <p className="text-gray-700 whitespace-pre-wrap">
-                                {standup.yesterday}
-                              </p>
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-gray-900 mb-2">
-                                Today
-                              </h3>
-                              <p className="text-gray-700 whitespace-pre-wrap">
-                                {standup.today}
-                              </p>
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-gray-900 mb-2">
-                                Blockers
-                              </h3>
-                              <p className="text-gray-700 whitespace-pre-wrap">
-                                {standup.blockers}
-                              </p>
-                            </div>
-                            {standup.highlights && (
-                              <div>
-                                <h3 className="font-medium text-gray-900 mb-2">
-                                  Highlights
-                                </h3>
-                                <p className="text-gray-700 whitespace-pre-wrap">
-                                  {standup.highlights}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
+                  )
+                ])}
               </TableBody>
             </Table>
           ) : (
