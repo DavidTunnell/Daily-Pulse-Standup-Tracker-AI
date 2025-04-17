@@ -103,7 +103,17 @@ const StandupForm = () => {
     <Card className="w-full max-w-xl bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
       <CardHeader className="px-6 py-8">
         <div className="flex justify-between items-center mb-4">
-          <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
+          <div className="flex items-center">
+            <img 
+              src="/src/assets/dailypulse-logo.png" 
+              alt="DailyPulse Logo" 
+              className="h-10 w-auto mr-2" 
+            />
+            <div>
+              <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
+              <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
+            </div>
+          </div>
           {user && (
             <div className="flex items-center gap-2">
               <div className="text-sm text-gray-600">
@@ -126,7 +136,6 @@ const StandupForm = () => {
             </div>
           )}
         </div>
-        <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
       </CardHeader>
       
       <CardContent className="px-6 pb-8">

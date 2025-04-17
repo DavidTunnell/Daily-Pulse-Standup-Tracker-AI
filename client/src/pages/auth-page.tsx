@@ -97,8 +97,15 @@ export default function AuthPage() {
       <div className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-3">
+              <img 
+                src="/src/assets/dailypulse-logo.png" 
+                alt="DailyPulse Logo" 
+                className="h-16 w-auto" 
+              />
+            </div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              Daily Standup App
+              DailyPulse
             </h2>
             <p className="mt-2 text-sm text-gray-600">
               Share your progress and plans with your team
