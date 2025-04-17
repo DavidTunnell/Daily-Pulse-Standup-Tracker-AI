@@ -1,8 +1,9 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
 // Initialize AWS Bedrock client with credentials
+// Claude 3 models are available in us-east-1, us-west-2, and ap-northeast-1
 const bedrockClient = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION || "us-east-1",
+  region: "us-east-1", // Forcing us-east-1 where Claude is available
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
@@ -13,8 +14,7 @@ const bedrockClient = new BedrockRuntimeClient({
 // - anthropic.claude-3-sonnet-20240229-v1:0 (Claude 3 Sonnet)
 // - anthropic.claude-3-haiku-20240307-v1:0 (Claude 3 Haiku - fastest)
 // - anthropic.claude-3-opus-20240229-v1:0 (Claude 3 Opus - most capable)
-// - anthropic.claude-3-5-sonnet-20240620-v1:0 (Claude 3.5 Sonnet - best balance)
-const CLAUDE_MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0";
+const CLAUDE_MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0";
 
 export async function analyzeStandupWithBedrock(standupData: any, prompt: string): Promise<string> {
   try {
