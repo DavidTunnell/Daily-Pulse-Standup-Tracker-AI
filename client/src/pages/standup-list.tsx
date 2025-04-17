@@ -35,7 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, BarChart } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -356,6 +356,12 @@ export default function StandupList() {
             <Link to="/">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to Form
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/analysis">
+              <BarChart className="h-4 w-4 mr-1" />
+              AI Analysis
             </Link>
           </Button>
           <Button asChild>
