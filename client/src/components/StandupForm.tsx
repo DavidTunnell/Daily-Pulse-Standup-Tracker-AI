@@ -205,16 +205,18 @@ const StandupForm = () => {
 
               <Button 
                 type="submit" 
-                className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                variant="default"
+                size="lg"
+                className="w-full py-6 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-lg shadow-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-2 border-blue-500"
                 disabled={standupMutation.isPending}
               >
                 {standupMutation.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Submitting...
                   </>
                 ) : (
-                  "Submit Standup"
+                  "SUBMIT STANDUP"
                 )}
               </Button>
             </form>
