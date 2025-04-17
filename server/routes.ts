@@ -5,8 +5,6 @@ import { insertStandupSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
-import { analyzeStandup, generatePromptSuggestions } from "./openai";
-import { analyzeStandupWithBedrock, generatePromptSuggestionsWithBedrock } from "./bedrock";
 
 // Middleware to check if user is authenticated
 const ensureAuthenticated = (req: any, res: any, next: any) => {
@@ -121,68 +119,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting standup:", error);
       res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  // Analyze standups with AWS Bedrock (Claude)
-  app.post("/api/analyze", ensureAuthenticated, async (req, res) => {
-    try {
-      // Check AWS credentials
-      if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-        return res.status(500).json({ message: "AWS credentials are not configured" });
-      }
-
-      const { prompt } = req.body;
-      if (!prompt || typeof prompt !== 'string') {
-        return res.status(400).json({ message: "Prompt is required" });
-      }
-
-      // Get standups data for analysis
-      const standups = await storage.getAllStandups();
-      if (!standups.length) {
-        return res.status(400).json({ message: "No standup data available for analysis" });
-      }
-
-      const analysis = await analyzeStandupWithBedrock(standups, prompt);
-      res.json({ analysis });
-    } catch (error) {
-      console.error("Error analyzing standups:", error);
-      
-      // Pass more specific error messages to the client
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze standups";
-      res.status(500).json({ message: errorMessage });
-    }
-  });
-
-  // Generate prompt suggestions based on existing standups using AWS Bedrock
-  app.get("/api/prompt-suggestions", ensureAuthenticated, async (req, res) => {
-    try {
-      // Check AWS credentials
-      if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-        return res.status(500).json({ message: "AWS credentials are not configured" });
-      }
-
-      // Get standups data for generating suggestions
-      const standups = await storage.getAllStandups();
-      if (!standups.length) {
-        return res.json({ suggestions: [] });
-      }
-
-      const suggestions = await generatePromptSuggestionsWithBedrock(standups);
-      res.json({ suggestions });
-    } catch (error) {
-      console.error("Error generating prompt suggestions:", error);
-      
-      // Fall back to default suggestions if there's an error
-      const defaultSuggestions = [
-        "What are the recurring blockers in my team's standups?",
-        "What trends do you see in our daily work?",
-        "Summarize the main achievements from the past week",
-        "What areas should our team focus on based on recent standups?",
-        "Identify any potential risks or issues from our recent standups"
-      ];
-      
-      res.json({ suggestions: defaultSuggestions });
     }
   });
 
