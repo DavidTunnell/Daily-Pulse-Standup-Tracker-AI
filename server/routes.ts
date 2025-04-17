@@ -4,14 +4,32 @@ import { storage } from "./storage";
 import { insertStandupSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { setupAuth } from "./auth";
+
+// Middleware to check if user is authenticated
+const ensureAuthenticated = (req: any, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication routes
+  setupAuth(app);
+
   // Register API routes
-  app.post("/api/standups", async (req, res) => {
+  app.post("/api/standups", ensureAuthenticated, async (req, res) => {
     try {
-      const validatedData = insertStandupSchema.parse(req.body);
-      const standup = await storage.createStandup(validatedData);
-      res.status(201).json(standup);
+      // Include the userId from the authenticated user
+      const standup = {
+        ...req.body,
+        userId: req.user.id
+      };
+      
+      const validatedData = insertStandupSchema.parse(standup);
+      const createdStandup = await storage.createStandup(validatedData);
+      res.status(201).json(createdStandup);
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
@@ -24,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all standups
-  app.get("/api/standups", async (req, res) => {
+  app.get("/api/standups", ensureAuthenticated, async (req, res) => {
     try {
       const standups = await storage.getAllStandups();
       res.json(standups);

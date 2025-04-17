@@ -47,7 +47,8 @@ export class MemStorage implements IStorage {
     const standup: Standup = { 
       ...insertStandup, 
       id, 
-      createdAt 
+      createdAt,
+      highlights: insertStandup.highlights || null
     };
     this.standups.set(id, standup);
     return standup;

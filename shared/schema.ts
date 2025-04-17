@@ -19,6 +19,7 @@ export type User = typeof users.$inferSelect;
 // Standup schema
 export const standups = pgTable("standups", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
   yesterday: text("yesterday").notNull(),
   today: text("today").notNull(),
   blockers: text("blockers").notNull(),
@@ -27,6 +28,7 @@ export const standups = pgTable("standups", {
 });
 
 export const insertStandupSchema = createInsertSchema(standups).pick({
+  userId: true,
   yesterday: true,
   today: true,
   blockers: true,
