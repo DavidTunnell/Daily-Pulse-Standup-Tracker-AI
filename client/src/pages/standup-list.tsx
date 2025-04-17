@@ -1,12 +1,15 @@
-import { useState, Fragment } from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { getQueryFn, queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { Standup, InsertStandup } from "@shared/schema";
+import { Standup, InsertStandup, insertStandupSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import {
   Table,
@@ -18,6 +21,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -46,6 +63,166 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Loader2, Plus, ChevronLeft, RefreshCw, Edit, Trash2, AlertCircle } from "lucide-react";
+
+// Define the edit form schema
+const editStandupSchema = insertStandupSchema.omit({ userId: true }).extend({
+  standupDate: z.date().optional(),
+  highlights: z.string().optional(),
+});
+
+type EditStandupFormValues = z.infer<typeof editStandupSchema>;
+
+// Edit Form Component
+interface EditStandupFormProps {
+  standup: Standup;
+  onSubmit: (data: EditStandupFormValues) => void;
+  isSubmitting: boolean;
+  onCancel: () => void;
+}
+
+function EditStandupForm({ standup, onSubmit, isSubmitting, onCancel }: EditStandupFormProps) {
+  // Convert string date to Date object for the form
+  const standupDateObj = standup.standupDate ? new Date(standup.standupDate) : new Date();
+  
+  const form = useForm<EditStandupFormValues>({
+    resolver: zodResolver(editStandupSchema),
+    defaultValues: {
+      yesterday: standup.yesterday,
+      today: standup.today,
+      blockers: standup.blockers,
+      highlights: standup.highlights || undefined,
+      standupDate: standupDateObj,
+    },
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="yesterday"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>What did you do yesterday?</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Tasks completed, meetings attended, etc."
+                  className="min-h-[80px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="today"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>What will you do today?</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Tasks planned, upcoming meetings, etc."
+                  className="min-h-[80px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="blockers"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Any blockers?</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Issues preventing progress, help needed, etc."
+                  className="min-h-[80px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="highlights"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Highlights / Big Wins (Optional)</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Key accomplishments, breakthroughs, etc."
+                  className="min-h-[80px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="standupDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Standup Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className="pl-3 text-left font-normal"
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <DialogFooter>
+          <Button variant="outline" type="button" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Edit className="h-4 w-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+}
 
 export default function StandupList() {
   const { user } = useAuth();
@@ -232,7 +409,7 @@ export default function StandupList() {
               </TableHeader>
               <TableBody>
                 {standups.map((standup) => (
-                  <Fragment key={standup.id}>
+                  <React.Fragment key={standup.id}>
                     <TableRow
                       className={`${
                         isOwnStandup(standup) ? "bg-blue-50" : ""
@@ -348,7 +525,7 @@ export default function StandupList() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </Fragment>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>
@@ -393,8 +570,14 @@ export default function StandupList() {
         </AlertDialogContent>
       </AlertDialog>
       
-      {/* Edit Standup Dialog - would be used with a form component */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+      {/* Edit Standup Dialog with Form */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => {
+        setEditDialogOpen(open);
+        // Reset form when dialog closes
+        if (!open) {
+          setStandupToEdit(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Edit Standup</DialogTitle>
@@ -402,67 +585,167 @@ export default function StandupList() {
               Update your standup details. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
+          
           {standupToEdit && (
-            <div className="grid gap-4 py-4">
-              {/* Here you would include a form component for editing the standup */}
-              <p className="text-amber-500 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                Edit functionality implementation pending
-              </p>
+            <div>
+              {(() => {
+                // Convert string date to Date object for the form
+                const standupDateObj = standupToEdit.standupDate ? new Date(standupToEdit.standupDate) : new Date();
+                
+                const form = useForm<EditStandupFormValues>({
+                  resolver: zodResolver(editStandupSchema),
+                  defaultValues: {
+                    yesterday: standupToEdit.yesterday,
+                    today: standupToEdit.today,
+                    blockers: standupToEdit.blockers,
+                    highlights: standupToEdit.highlights || undefined,
+                    standupDate: standupDateObj,
+                  },
+                });
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Yesterday</h3>
-                  <p className="text-sm text-gray-700">{standupToEdit.yesterday}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Today</h3>
-                  <p className="text-sm text-gray-700">{standupToEdit.today}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Blockers</h3>
-                  <p className="text-sm text-gray-700">{standupToEdit.blockers}</p>
-                </div>
-                {standupToEdit.highlights && (
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">Highlights</h3>
-                    <p className="text-sm text-gray-700">{standupToEdit.highlights}</p>
-                  </div>
-                )}
-              </div>
+                return (
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit((data) => {
+                      // Convert Date to string for API request
+                      const formattedData = {
+                        ...data,
+                        userId: standupToEdit.userId,
+                        // Convert Date to ISO string for backend
+                        standupDate: data.standupDate ? data.standupDate.toISOString() : undefined
+                      };
+                      
+                      editMutation.mutate({
+                        id: standupToEdit.id,
+                        data: formattedData
+                      });
+                    })} className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="yesterday"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>What did you do yesterday?</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Tasks completed, meetings attended, etc."
+                                className="min-h-[80px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="today"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>What will you do today?</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Tasks planned, upcoming meetings, etc."
+                                className="min-h-[80px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="blockers"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Any blockers?</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Issues preventing progress, help needed, etc."
+                                className="min-h-[80px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="highlights"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Highlights / Big Wins (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Key accomplishments, breakthroughs, etc."
+                                className="min-h-[80px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="standupDate"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel>Standup Date</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant={"outline"}
+                                    className="pl-3 text-left font-normal"
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <DialogFooter>
+                        <Button variant="outline" type="button" onClick={() => setEditDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={editMutation.isPending}>
+                          {editMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Edit className="h-4 w-4 mr-2" />
+                          )}
+                          Save Changes
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                );
+              })()}
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={editMutation.isPending}
-              onClick={() => {
-                if (standupToEdit) {
-                  editMutation.mutate({
-                    id: standupToEdit.id,
-                    data: {
-                      yesterday: standupToEdit.yesterday,
-                      today: standupToEdit.today,
-                      blockers: standupToEdit.blockers,
-                      highlights: standupToEdit.highlights,
-                      userId: standupToEdit.userId,
-                      standupDate: standupToEdit.standupDate
-                    }
-                  });
-                }
-              }}
-            >
-              {editMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Edit className="h-4 w-4 mr-2" />
-              )}
-              Save Changes
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
