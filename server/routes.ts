@@ -132,7 +132,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Amazon Bedrock Claude 3.5 AI Endpoint
+  // Update user profile
+  app.put("/api/user", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = req.user.id;
+      
+      // Only allow updates to username, password and jiraProfileId
+      const updateData: any = {};
+      if (req.body.username) updateData.username = req.body.username;
+      if (req.body.password) updateData.password = req.body.password;
+      if (req.body.jiraProfileId !== undefined) updateData.jiraProfileId = req.body.jiraProfileId;
+      
+      // Update the user
+      const updatedUser = await storage.updateUser(userId, updateData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   app.post("/api/analyze-standups", ensureAuthenticated, async (req, res) => {
     try {
       const { prompt, standups } = req.body;

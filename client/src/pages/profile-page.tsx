@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertCircle, ChevronLeft, User, Lock } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, ChevronLeft, User, Lock, Link2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 // Form schema for profile update
@@ -138,7 +138,7 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle>Edit Profile</CardTitle>
           <CardDescription>
-            Update your username and password below
+            Update your account information below
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -226,6 +226,30 @@ export default function ProfilePage() {
                         />
                       </div>
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="jiraProfileId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jira Profile Identifier</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Link2 className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                        <Input
+                          className="pl-9"
+                          placeholder="Enter your Jira profile ID (optional)"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      This identifier is used to link your standups with Jira tickets.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
