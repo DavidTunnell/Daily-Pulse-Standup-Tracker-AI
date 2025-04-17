@@ -22,8 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertCircle, ChevronLeft, User, Lock, Link2 } from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { Loader2, CheckCircle, AlertCircle, User, Lock, Link2 } from "lucide-react";
 
 // Form schema for profile update
 const profileSchema = z.object({
@@ -118,20 +117,9 @@ export default function ProfilePage() {
         <title>Edit Profile | DailyPulse</title>
       </Helmet>
 
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center">
-          <Logo size="lg" withText={false} className="mr-4" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Your Profile</h1>
-            <p className="text-gray-600 mt-1">Edit your account information</p>
-          </div>
-        </div>
-        <Button variant="outline" asChild>
-          <a href="/">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
-          </a>
-        </Button>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Your Profile</h1>
+        <p className="text-gray-600 mt-1">Edit your account information</p>
       </div>
 
       <Card className="max-w-md mx-auto">

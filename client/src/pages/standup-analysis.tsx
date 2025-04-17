@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronLeft, Bot, Send, RefreshCw } from "lucide-react";
+import { Loader2, Bot, Send } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -127,28 +127,9 @@ export default function StandupAnalysis() {
         <title>Standup Analysis | DailyPulse</title>
       </Helmet>
 
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center">
-          <Logo size="lg" withText={false} className="mr-4" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Standup Analysis</h1>
-            <p className="text-gray-600 mt-1">AI-powered insights from your standup data</p>
-          </div>
-        </div>
-        <div className="space-x-2">
-          <Button variant="outline" asChild>
-            <Link to="/">
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Back to Form
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/standups">
-              <RefreshCw className="h-4 w-4 mr-1" />
-              View Standups
-            </Link>
-          </Button>
-        </div>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Standup Analysis</h1>
+        <p className="text-gray-600 mt-1">AI-powered insights from your standup data</p>
       </div>
 
       <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border">
