@@ -63,7 +63,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, ChevronLeft, RefreshCw, Edit, Trash2, AlertCircle } from "lucide-react";
+import { Loader2, Plus, ChevronLeft, RefreshCw, Edit, Trash2, AlertCircle, BarChart3, Sparkles } from "lucide-react";
 
 // Define the edit form schema
 const editStandupSchema = insertStandupSchema.omit({ userId: true }).extend({
@@ -356,6 +356,12 @@ export default function StandupList() {
             <Link to="/">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to Form
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/analysis">
+              <BarChart3 className="h-4 w-4 mr-1" />
+              Analyze Standups
             </Link>
           </Button>
           <Button asChild>
