@@ -585,166 +585,25 @@ export default function StandupList() {
             </DialogDescription>
           </DialogHeader>
           
-          {standupToEdit && (
-            <div>
-              {(() => {
-                // Convert string date to Date object for the form
-                const standupDateObj = standupToEdit.standupDate ? new Date(standupToEdit.standupDate) : new Date();
-                
-                const form = useForm<EditStandupFormValues>({
-                  resolver: zodResolver(editStandupSchema),
-                  defaultValues: {
-                    yesterday: standupToEdit.yesterday,
-                    today: standupToEdit.today,
-                    blockers: standupToEdit.blockers,
-                    highlights: standupToEdit.highlights || undefined,
-                    standupDate: standupDateObj,
-                  },
-                });
+          {standupToEdit && <EditStandupForm 
+            standup={standupToEdit} 
+            onSubmit={(data) => {
+              // Convert Date to string for API request
+              const formattedData = {
+                ...data,
+                userId: standupToEdit.userId,
+                // Convert Date to ISO string for backend
+                standupDate: data.standupDate ? data.standupDate.toISOString() : undefined
+              };
               
-                return (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit((data) => {
-                      // Convert Date to string for API request
-                      const formattedData = {
-                        ...data,
-                        userId: standupToEdit.userId,
-                        // Convert Date to ISO string for backend
-                        standupDate: data.standupDate ? data.standupDate.toISOString() : undefined
-                      };
-                      
-                      editMutation.mutate({
-                        id: standupToEdit.id,
-                        data: formattedData
-                      });
-                    })} className="space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="yesterday"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>What did you do yesterday?</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Tasks completed, meetings attended, etc."
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="today"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>What will you do today?</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Tasks planned, upcoming meetings, etc."
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="blockers"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Any blockers?</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Issues preventing progress, help needed, etc."
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="highlights"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Highlights / Big Wins (Optional)</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Key accomplishments, breakthroughs, etc."
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="standupDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Standup Date</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className="pl-3 text-left font-normal"
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <DialogFooter>
-                        <Button variant="outline" type="button" onClick={() => setEditDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" disabled={editMutation.isPending}>
-                          {editMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          ) : (
-                            <Edit className="h-4 w-4 mr-2" />
-                          )}
-                          Save Changes
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                );
-              })()}
-            </div>
-          )}
+              editMutation.mutate({
+                id: standupToEdit.id,
+                data: formattedData
+              });
+            }} 
+            isSubmitting={editMutation.isPending} 
+            onCancel={() => setEditDialogOpen(false)} 
+          />}
         </DialogContent>
       </Dialog>
     </div>
