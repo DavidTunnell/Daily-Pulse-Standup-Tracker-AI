@@ -50,10 +50,7 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const { user, loginMutation, registerMutation } = useAuth();
 
-  // If user is already logged in, redirect to home
-  if (user) {
-    return <Redirect to="/" />;
-  }
+  // We'll handle redirect after all hooks are called to avoid hooks error
 
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -84,6 +81,11 @@ export default function AuthPage() {
     const { confirmPassword, ...registerData } = data;
     registerMutation.mutate(registerData);
   };
+
+  // If user is already logged in, redirect to home (after all hooks are called)
+  if (user) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
