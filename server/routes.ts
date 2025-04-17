@@ -6,6 +6,16 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
 
 // Create Bedrock client
 const bedrockClient = new BedrockRuntimeClient({
@@ -144,7 +154,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Only allow updates to username, password and jiraProfileId
       const updateData: any = {};
       if (req.body.username) updateData.username = req.body.username;
-      if (req.body.password) updateData.password = req.body.password;
+      
+      // Hash the password if it's provided
+      if (req.body.password) {
+        updateData.password = await hashPassword(req.body.password);
+      }
+      
       if (req.body.jiraProfileId !== undefined) updateData.jiraProfileId = req.body.jiraProfileId;
       
       // Update the user
