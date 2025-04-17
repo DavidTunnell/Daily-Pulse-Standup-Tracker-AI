@@ -5,6 +5,7 @@ import { insertStandupSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
+import { analyzeStandup, generatePromptSuggestions } from "./openai";
 
 // Middleware to check if user is authenticated
 const ensureAuthenticated = (req: any, res: any, next: any) => {
@@ -119,6 +120,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting standup:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Analyze standups with OpenAI
+  app.post("/api/analyze", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ message: "OpenAI API key is not configured" });
+      }
+
+      const { prompt } = req.body;
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({ message: "Prompt is required" });
+      }
+
+      // Get standups data for analysis
+      const standups = await storage.getAllStandups();
+      if (!standups.length) {
+        return res.status(400).json({ message: "No standup data available for analysis" });
+      }
+
+      const analysis = await analyzeStandup(standups, prompt);
+      res.json({ analysis });
+    } catch (error) {
+      console.error("Error analyzing standups:", error);
+      res.status(500).json({ message: "Failed to analyze standups" });
+    }
+  });
+
+  // Generate prompt suggestions based on existing standups
+  app.get("/api/prompt-suggestions", ensureAuthenticated, async (req, res) => {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ message: "OpenAI API key is not configured" });
+      }
+
+      // Get standups data for generating suggestions
+      const standups = await storage.getAllStandups();
+      if (!standups.length) {
+        return res.json({ suggestions: [] });
+      }
+
+      const suggestions = await generatePromptSuggestions(standups);
+      res.json({ suggestions });
+    } catch (error) {
+      console.error("Error generating prompt suggestions:", error);
+      res.status(500).json({ message: "Failed to generate prompt suggestions" });
     }
   });
 
