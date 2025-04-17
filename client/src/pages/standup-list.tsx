@@ -35,7 +35,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, BarChart } from "lucide-react";
+import { 
+  CalendarIcon, 
+  BarChart, 
+  ChevronLeft, 
+  Plus, 
+  RefreshCw, 
+  Pencil, 
+  Trash, 
+  Loader2, 
+  Edit, 
+  Trash2, 
+  AlertCircle 
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -63,7 +75,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, ChevronLeft, RefreshCw, Edit, Trash2, AlertCircle } from "lucide-react";
 
 // Define the edit form schema
 const editStandupSchema = insertStandupSchema.omit({ userId: true }).extend({

@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { User, BarChart2, List, LogOut } from "lucide-react";
+import { User, BarChart2, List, LogOut, FileInput } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,6 +24,13 @@ export function NavBar() {
         });
       }
     });
+  };
+
+  const mainButton = {
+    href: "/",
+    label: "Enter Standup",
+    icon: <FileInput className="h-5 w-5 mr-2" />,
+    active: location === "/"
   };
 
   const navItems = [
@@ -61,6 +68,24 @@ export function NavBar() {
 
           <div className="flex items-center">
             <nav className="flex items-center space-x-2 mr-3">
+              <Button
+                variant={mainButton.active ? "default" : "outline"}
+                asChild
+                className={cn(
+                  "transition-all",
+                  isMobile ? "px-3" : "px-4",
+                  "bg-blue-600 hover:bg-blue-700 text-white"
+                )}
+                size={isMobile ? "sm" : "default"}
+              >
+                <Link href={mainButton.href}>
+                  <div className="flex items-center">
+                    {mainButton.icon}
+                    {!isMobile && <span>{mainButton.label}</span>}
+                  </div>
+                </Link>
+              </Button>
+              
               {navItems.map((item) => (
                 <Button
                   key={item.href}
