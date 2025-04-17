@@ -25,12 +25,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Plus, ChevronLeft, RefreshCw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Plus, ChevronLeft, RefreshCw, Edit, Trash2, AlertCircle } from "lucide-react";
 
 export default function StandupList() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [standupToEdit, setStandupToEdit] = useState<Standup | null>(null);
+  const [standupToDelete, setStandupToDelete] = useState<Standup | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
     data: standups,
@@ -40,6 +65,51 @@ export default function StandupList() {
   } = useQuery<Standup[]>({
     queryKey: ["/api/standups"],
     queryFn: getQueryFn({ on401: "throw" }),
+  });
+  
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/standups/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Standup deleted",
+        description: "Your standup has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/standups"] });
+      setDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete standup",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Edit mutation
+  const editMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: InsertStandup }) => {
+      const response = await apiRequest("PUT", `/api/standups/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Standup updated",
+        description: "Your standup has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/standups"] });
+      setEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update standup",
+        variant: "destructive",
+      });
+    },
   });
   
   const handleRefresh = async () => {
@@ -66,6 +136,27 @@ export default function StandupList() {
   // Determine if current user is author of standup
   const isOwnStandup = (standup: Standup) => {
     return user && standup.userId === user.id;
+  };
+  
+  // Handler for initiating an edit
+  const handleEditStandup = (standup: Standup, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setStandupToEdit(standup);
+    setEditDialogOpen(true);
+  };
+  
+  // Handler for initiating a delete
+  const handleDeleteStandup = (standup: Standup, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setStandupToDelete(standup);
+    setDeleteDialogOpen(true);
+  };
+  
+  // Handler for confirming deletion
+  const confirmDelete = () => {
+    if (standupToDelete) {
+      deleteMutation.mutate(standupToDelete.id);
+    }
   };
 
   return (
@@ -174,16 +265,37 @@ export default function StandupList() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpandRow(standup.id);
-                          }}
-                        >
-                          {expandedRow === standup.id ? "Hide" : "View"}
-                        </Button>
+                        <div className="flex justify-end space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpandRow(standup.id);
+                            }}
+                          >
+                            {expandedRow === standup.id ? "Hide" : "View"}
+                          </Button>
+                          
+                          {isOwnStandup(standup) && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => handleEditStandup(standup, e)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => handleDeleteStandup(standup, e)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                     {expandedRow === standup.id && (
@@ -253,6 +365,106 @@ export default function StandupList() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              standup record.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Edit Standup Dialog - would be used with a form component */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Standup</DialogTitle>
+            <DialogDescription>
+              Update your standup details. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          {standupToEdit && (
+            <div className="grid gap-4 py-4">
+              {/* Here you would include a form component for editing the standup */}
+              <p className="text-amber-500 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                Edit functionality implementation pending
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Yesterday</h3>
+                  <p className="text-sm text-gray-700">{standupToEdit.yesterday}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Today</h3>
+                  <p className="text-sm text-gray-700">{standupToEdit.today}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Blockers</h3>
+                  <p className="text-sm text-gray-700">{standupToEdit.blockers}</p>
+                </div>
+                {standupToEdit.highlights && (
+                  <div>
+                    <h3 className="text-sm font-medium mb-2">Highlights</h3>
+                    <p className="text-sm text-gray-700">{standupToEdit.highlights}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={editMutation.isPending}
+              onClick={() => {
+                if (standupToEdit) {
+                  editMutation.mutate({
+                    id: standupToEdit.id,
+                    data: {
+                      yesterday: standupToEdit.yesterday,
+                      today: standupToEdit.today,
+                      blockers: standupToEdit.blockers,
+                      highlights: standupToEdit.highlights,
+                      userId: standupToEdit.userId,
+                      standupDate: standupToEdit.standupDate
+                    }
+                  });
+                }
+              }}
+            >
+              {editMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Edit className="h-4 w-4 mr-2" />
+              )}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
