@@ -35,10 +35,10 @@ export function NavBar() {
 
   const navItems = [
     {
-      href: "/profile",
-      label: "Profile",
-      icon: <User className="h-5 w-5 mr-2" />,
-      active: location === "/profile"
+      href: "/standups",
+      label: "View All Standups",
+      icon: <List className="h-5 w-5 mr-2" />,
+      active: location === "/standups"
     },
     {
       href: "/analysis",
@@ -47,10 +47,10 @@ export function NavBar() {
       active: location === "/analysis"
     },
     {
-      href: "/standups",
-      label: "View All Standups",
-      icon: <List className="h-5 w-5 mr-2" />,
-      active: location === "/standups"
+      href: "/profile",
+      label: "Profile",
+      icon: <User className="h-5 w-5 mr-2" />,
+      active: location === "/profile"
     }
   ];
 
