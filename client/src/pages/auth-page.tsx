@@ -91,7 +91,7 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Helmet>
-        <title>Login | Standup App</title>
+        <title>Login | DailyPulse</title>
       </Helmet>
 
       {/* Left Side - Auth Forms */}
@@ -266,7 +266,7 @@ export default function AuthPage() {
         <div className="flex items-center justify-center h-full px-8">
           <div className="max-w-md">
             <h1 className="text-4xl font-bold text-primary-900 mb-4">
-              Welcome to Daily Standup
+              Welcome to DailyPulse
             </h1>
             <p className="text-lg text-primary-800 mb-6">
               Keep your team in sync with daily standups. Share what you're working on, blockers, and celebrate your wins.
