@@ -361,33 +361,13 @@ export default function StandupList() {
         <title>Standup History | DailyPulse</title>
       </Helmet>
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8">
         <div className="flex items-center">
           <Logo size="lg" withText={false} className="mr-4" />
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Standup History</h1>
             <p className="text-gray-600 mt-1">View all team standup submissions</p>
           </div>
-        </div>
-        <div className="space-x-2">
-          <Button variant="outline" asChild>
-            <Link to="/">
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Back to Form
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/analysis">
-              <BarChart className="h-4 w-4 mr-1" />
-              AI Analysis
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link to="/">
-              <Plus className="h-4 w-4 mr-1" />
-              New Standup
-            </Link>
-          </Button>
         </div>
       </div>
 
@@ -557,12 +537,7 @@ export default function StandupList() {
           ) : (
             <div className="py-12 text-center">
               <p className="text-gray-500">No standups submitted yet.</p>
-              <Button className="mt-4" asChild>
-                <Link to="/">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Create Your First Standup
-                </Link>
-              </Button>
+              <p className="text-gray-500 mt-2">Use the "Enter Standup" button in the navbar to create your first standup.</p>
             </div>
           )}
         </CardContent>
