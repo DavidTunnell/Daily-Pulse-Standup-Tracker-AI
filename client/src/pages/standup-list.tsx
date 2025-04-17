@@ -75,7 +75,7 @@ type EditStandupFormValues = z.infer<typeof editStandupSchema>;
 
 // Edit Form Component
 interface EditStandupFormProps {
-  standup: Standup;
+  standup: StandupWithUsername;
   onSubmit: (data: EditStandupFormValues) => void;
   isSubmitting: boolean;
   onCancel: () => void;
@@ -312,19 +312,19 @@ export default function StandupList() {
   };
 
   // Determine if current user is author of standup
-  const isOwnStandup = (standup: Standup) => {
+  const isOwnStandup = (standup: StandupWithUsername) => {
     return user && standup.userId === user.id;
   };
   
   // Handler for initiating an edit
-  const handleEditStandup = (standup: Standup, e: React.MouseEvent) => {
+  const handleEditStandup = (standup: StandupWithUsername, e: React.MouseEvent) => {
     e.stopPropagation();
     setStandupToEdit(standup);
     setEditDialogOpen(true);
   };
   
   // Handler for initiating a delete
-  const handleDeleteStandup = (standup: Standup, e: React.MouseEvent) => {
+  const handleDeleteStandup = (standup: StandupWithUsername, e: React.MouseEvent) => {
     e.stopPropagation();
     setStandupToDelete(standup);
     setDeleteDialogOpen(true);
