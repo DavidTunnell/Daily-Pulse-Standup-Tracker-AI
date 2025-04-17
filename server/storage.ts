@@ -1,64 +1,61 @@
 import { users, type User, type InsertUser, standups, type Standup, type InsertStandup } from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
+import { db } from "./db";
+import connectPg from "connect-pg-simple";
+import session from "express-session";
+import { pool } from "./db";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// Interface with CRUD methods
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   createStandup(standup: InsertStandup): Promise<Standup>;
   getAllStandups(): Promise<Standup[]>;
+  sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private standups: Map<number, Standup>;
-  currentUserId: number;
-  currentStandupId: number;
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.standups = new Map();
-    this.currentUserId = 1;
-    this.currentStandupId = 1;
+    const PostgresSessionStore = connectPg(session);
+    this.sessionStore = new PostgresSessionStore({
+      pool, 
+      createTableIfMissing: true 
+    });
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async createStandup(insertStandup: InsertStandup): Promise<Standup> {
-    const id = this.currentStandupId++;
-    const createdAt = new Date();
-    const standup: Standup = { 
-      ...insertStandup, 
-      id, 
-      createdAt,
+    // Ensure highlights is null if not provided
+    const dataToInsert = {
+      ...insertStandup,
       highlights: insertStandup.highlights || null
     };
-    this.standups.set(id, standup);
+    
+    const [standup] = await db.insert(standups).values(dataToInsert).returning();
     return standup;
   }
 
   async getAllStandups(): Promise<Standup[]> {
-    return Array.from(this.standups.values()).sort((a, b) => 
-      b.createdAt.getTime() - a.createdAt.getTime()
-    );
+    return await db.select().from(standups).orderBy(desc(standups.createdAt));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

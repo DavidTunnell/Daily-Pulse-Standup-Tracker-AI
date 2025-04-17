@@ -30,15 +30,11 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  const MemStore = MemoryStore(session);
-
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "standup-app-secret-key",
     resave: false,
     saveUninitialized: false,
-    store: new MemStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    }),
+    store: storage.sessionStore,
     cookie: { 
       secure: process.env.NODE_ENV === "production",
       maxAge: 86400000 // 24 hours
