@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, standups, type Standup, type InsertStandup } from "@shared/schema";
+import { users, type User, type InsertUser, standups, type Standup, type InsertStandup, type StandupWithUsername } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import connectPg from "connect-pg-simple";
@@ -14,7 +14,7 @@ export interface IStorage {
   getStandupById(id: number): Promise<Standup | undefined>;
   updateStandup(id: number, standup: InsertStandup): Promise<Standup>;
   deleteStandup(id: number): Promise<void>;
-  getAllStandups(): Promise<Standup[]>;
+  getAllStandups(): Promise<StandupWithUsername[]>;
   sessionStore: session.Store;
 }
 

@@ -5,7 +5,7 @@ import { Link } from "wouter";
 import { format } from "date-fns";
 import { getQueryFn, queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { Standup, InsertStandup, insertStandupSchema } from "@shared/schema";
+import { Standup, InsertStandup, insertStandupSchema, StandupWithUsername } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -230,8 +230,8 @@ export default function StandupList() {
   const { toast } = useToast();
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [standupToEdit, setStandupToEdit] = useState<Standup | null>(null);
-  const [standupToDelete, setStandupToDelete] = useState<Standup | null>(null);
+  const [standupToEdit, setStandupToEdit] = useState<StandupWithUsername | null>(null);
+  const [standupToDelete, setStandupToDelete] = useState<StandupWithUsername | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -240,7 +240,7 @@ export default function StandupList() {
     isLoading,
     error,
     refetch,
-  } = useQuery<Standup[]>({
+  } = useQuery<StandupWithUsername[]>({
     queryKey: ["/api/standups"],
     queryFn: getQueryFn({ on401: "throw" }),
   });
