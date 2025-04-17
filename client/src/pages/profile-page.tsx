@@ -32,7 +32,8 @@ const profileSchema = z.object({
     .min(6, "Password must be at least 6 characters")
     .optional()
     .or(z.literal('')),
-  confirmPassword: z.string().optional().or(z.literal(''))
+  confirmPassword: z.string().optional().or(z.literal('')),
+  jiraProfileId: z.string().optional().or(z.literal(''))
 }).refine(data => {
   if (data.password && data.password !== data.confirmPassword) {
     return false;
@@ -70,6 +71,7 @@ export default function ProfilePage() {
       username: user.username,
       password: "",
       confirmPassword: "",
+      jiraProfileId: user.jiraProfileId || "",
     },
   });
 
