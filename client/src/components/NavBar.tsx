@@ -82,15 +82,22 @@ export function NavBar() {
               ))}
             </nav>
 
-            <Button 
-              variant="ghost" 
-              size={isMobile ? "sm" : "default"}
-              onClick={handleLogout}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              <LogOut className="h-5 w-5 mr-2" />
-              {!isMobile && <span>Logout</span>}
-            </Button>
+            <div className="flex items-center">
+              {!isMobile && (
+                <div className="text-sm text-gray-600 mr-2">
+                  Logged in as <span className="font-semibold">{user.username}</span>
+                </div>
+              )}
+              <Button 
+                variant="ghost" 
+                size={isMobile ? "sm" : "default"}
+                onClick={handleLogout}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <LogOut className="h-5 w-5 mr-2" />
+                {!isMobile && <span>Logout</span>}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
