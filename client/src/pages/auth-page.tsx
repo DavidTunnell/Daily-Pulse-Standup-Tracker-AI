@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet";
 import { Redirect } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { insertUserSchema } from "@shared/schema";
+import { Logo } from "@/components/Logo";
 
 import {
   Form,
@@ -98,11 +99,7 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-3">
-              <img 
-                src="/src/assets/dailypulse-logo.png" 
-                alt="DailyPulse Logo" 
-                className="h-16 w-auto" 
-              />
+              <Logo size="lg" withText={false} />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
               DailyPulse

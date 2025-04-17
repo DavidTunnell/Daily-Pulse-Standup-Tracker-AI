@@ -8,6 +8,7 @@ import { insertStandupSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
+import { Logo } from "@/components/Logo";
 
 import {
   Form,
@@ -104,11 +105,7 @@ const StandupForm = () => {
       <CardHeader className="px-6 py-8">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <img 
-              src="/src/assets/dailypulse-logo.png" 
-              alt="DailyPulse Logo" 
-              className="h-10 w-auto mr-2" 
-            />
+            <Logo size="md" withText={false} />
             <div>
               <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
               <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
