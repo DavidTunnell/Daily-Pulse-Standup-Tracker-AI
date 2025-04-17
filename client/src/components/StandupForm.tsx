@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Loader2, CheckCircle, AlertCircle, LogOut, CalendarIcon, User } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, CalendarIcon } from "lucide-react";
 
 // Create a form schema for just the user input fields (without userId)
 const formSchema = z.object({
@@ -49,7 +49,7 @@ const defaultValues: FormValues = {
 
 const StandupForm = () => {
   const { toast } = useToast();
-  const { user, logoutMutation } = useAuth();
+  const { user } = useAuth();
   const [formState, setFormState] = useState<"form" | "success" | "error">("form");
   
   const form = useForm<FormValues>({
@@ -103,46 +103,12 @@ const StandupForm = () => {
   return (
     <Card className="w-full max-w-xl bg-white rounded-xl shadow-md overflow-hidden animate-fade-in">
       <CardHeader className="px-6 py-8">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <Logo size="lg" withText={false} />
-            <div className="ml-3">
-              <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
-              <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
-            </div>
+        <div className="flex items-center">
+          <Logo size="lg" withText={false} />
+          <div className="ml-3">
+            <CardTitle className="text-2xl font-semibold text-gray-800">Daily Standup</CardTitle>
+            <CardDescription className="text-gray-600">Share your progress and plans with the team</CardDescription>
           </div>
-          {user && (
-            <div className="flex items-center gap-2">
-              <div className="text-sm text-gray-600">
-                Logged in as <a href="/profile" className="font-semibold hover:underline">{user.username}</a>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                asChild
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <a href="/profile">
-                  <User className="h-4 w-4 mr-1" />
-                  Profile
-                </a>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                {logoutMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <LogOut className="h-4 w-4" />
-                )}
-                <span className="ml-1">Logout</span>
-              </Button>
-            </div>
-          )}
         </div>
       </CardHeader>
       
