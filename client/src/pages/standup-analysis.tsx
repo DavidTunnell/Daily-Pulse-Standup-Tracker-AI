@@ -33,17 +33,7 @@ import {
   AlertCircle,
   SendHorizonal,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 
 export default function StandupAnalysis() {
   const { toast } = useToast();
@@ -51,8 +41,6 @@ export default function StandupAnalysis() {
   const [promptSuggestions, setPromptSuggestions] = useState<string[]>([]);
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "mine">("all");
-  const [showError, setShowError] = useState(false);
 
   // Fetch all standups
   const {
@@ -65,45 +53,60 @@ export default function StandupAnalysis() {
     queryFn: getQueryFn({ on401: "throw" }),
   });
 
-  // Generate prompt suggestions when standups load
-  useEffect(() => {
-    const generateSuggestions = async () => {
-      if (standups && standups.length > 0) {
-        try {
-          const suggestions = await generateDefaultPrompts(standups);
-          setPromptSuggestions(suggestions);
-        } catch (error) {
-          console.error("Error generating suggestions:", error);
-        }
-      }
-    };
+  // Define types for API responses
+  interface SuggestionsResponse {
+    suggestions: string[];
+  }
+  
+  interface AnalysisResponse {
+    analysis: string;
+  }
 
-    generateSuggestions();
-  }, [standups]);
+  // Fetch prompt suggestions
+  const {
+    data: suggestionsData,
+    isLoading: isSuggestionsLoading,
+    error: suggestionsError,
+  } = useQuery<SuggestionsResponse>({
+    queryKey: ["/api/prompt-suggestions"],
+    queryFn: getQueryFn({ on401: "throw" }),
+    enabled: standups !== undefined && standups.length > 0,
+  });
+
+  // Set suggestions when data is fetched
+  useEffect(() => {
+    if (suggestionsData?.suggestions) {
+      setPromptSuggestions(suggestionsData.suggestions);
+    }
+  }, [suggestionsData]);
+
+  // Analyze mutation
+  const analyzeMutation = useMutation<AnalysisResponse, Error, string>({
+    mutationFn: async (promptText: string) => {
+      const res = await apiRequest("POST", "/api/analyze", { prompt: promptText });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setAnalysis(data.analysis);
+    },
+    onError: (error: Error) => {
+      console.error("Error analyzing standups:", error);
+      toast({
+        title: "Analysis failed",
+        description: error.message || "Failed to analyze standups. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Handle prompt submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
     
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      setShowError(true);
-      return;
-    }
-
     setIsAnalyzing(true);
     try {
-      // Filter standups based on active tab if needed
-      const standupsToAnalyze = standups || [];
-      const result = await analyzeStandup(standupsToAnalyze, prompt);
-      setAnalysis(result);
-    } catch (error) {
-      console.error("Error analyzing standups:", error);
-      toast({
-        title: "Analysis failed",
-        description: "Failed to analyze standups. Please try again.",
-        variant: "destructive",
-      });
+      await analyzeMutation.mutateAsync(prompt);
     } finally {
       setIsAnalyzing(false);
     }
@@ -304,20 +307,6 @@ export default function StandupAnalysis() {
           </Card>
         </div>
       </div>
-
-      <AlertDialog open={showError} onOpenChange={setShowError}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>API Key Not Found</AlertDialogTitle>
-            <AlertDialogDescription>
-              OpenAI API key is missing. Please make sure the OPENAI_API_KEY environment variable is set correctly.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowError(false)}>OK</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
