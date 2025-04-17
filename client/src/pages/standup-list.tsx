@@ -322,11 +322,18 @@ export default function StandupList() {
     }
   };
 
-  const formatDate = (dateString: Date | string) => {
+  const formatDateTime = (dateString: Date | string) => {
     const date = typeof dateString === "string" 
       ? new Date(dateString) 
       : dateString;
     return format(date, "MMM d, yyyy h:mm a");
+  };
+  
+  const formatDateOnly = (dateString: Date | string) => {
+    const date = typeof dateString === "string" 
+      ? new Date(dateString) 
+      : dateString;
+    return format(date, "MMM d, yyyy");
   };
 
   // Determine if current user is author of standup
@@ -425,10 +432,10 @@ export default function StandupList() {
                     onClick={() => toggleExpandRow(standup.id)}
                   >
                     <TableCell className="font-medium">
-                      {formatDate(standup.createdAt)}
+                      {formatDateTime(standup.createdAt)}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
+                      {standup.standupDate ? formatDateOnly(standup.standupDate) : "Today"}
                     </TableCell>
                     <TableCell className="truncate max-w-[200px]">
                       {standup.yesterday}
@@ -486,10 +493,10 @@ export default function StandupList() {
                       <TableCell colSpan={8} className="p-4">
                         <div className="mb-4">
                           <h3 className="font-medium text-gray-900 mb-2">
-                            Standup for {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
+                            Standup for {standup.standupDate ? formatDateOnly(standup.standupDate) : "Today"}
                           </h3>
                           <p className="text-xs text-gray-500">
-                            Submitted on {formatDate(standup.createdAt)}
+                            Submitted on {formatDateTime(standup.createdAt)}
                           </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
