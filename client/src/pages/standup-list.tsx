@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Logo } from "@/components/Logo";
 
 import {
   Table,
@@ -339,13 +340,16 @@ export default function StandupList() {
   return (
     <div className="container mx-auto py-8 px-4">
       <Helmet>
-        <title>Standup History | Standup App</title>
+        <title>Standup History | DailyPulse</title>
       </Helmet>
 
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Standup History</h1>
-          <p className="text-gray-600 mt-1">View all team standup submissions</p>
+        <div className="flex items-center">
+          <Logo size="lg" withText={false} className="mr-4" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Standup History</h1>
+            <p className="text-gray-600 mt-1">View all team standup submissions</p>
+          </div>
         </div>
         <div className="space-x-2">
           <Button variant="outline" asChild>
