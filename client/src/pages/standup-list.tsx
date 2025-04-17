@@ -446,9 +446,9 @@ export default function StandupList() {
                     </TableCell>
                     <TableCell>
                       {isOwnStandup(standup) ? (
-                        <span className="text-blue-600 font-medium">You</span>
+                        <span className="text-blue-600 font-medium">You ({standup.username})</span>
                       ) : (
-                        <span>User #{standup.userId}</span>
+                        <span>{standup.username}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">

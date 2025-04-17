@@ -56,8 +56,28 @@ export class DatabaseStorage implements IStorage {
     return standup;
   }
 
-  async getAllStandups(): Promise<Standup[]> {
-    return await db.select().from(standups).orderBy(desc(standups.createdAt));
+  async getAllStandups(): Promise<StandupWithUsername[]> {
+    const result = await db
+      .select({
+        id: standups.id,
+        userId: standups.userId,
+        yesterday: standups.yesterday,
+        today: standups.today,
+        blockers: standups.blockers,
+        highlights: standups.highlights,
+        standupDate: standups.standupDate,
+        createdAt: standups.createdAt,
+        username: users.username
+      })
+      .from(standups)
+      .leftJoin(users, eq(standups.userId, users.id))
+      .orderBy(desc(standups.createdAt));
+      
+    // Ensure username is never null (fallback to "Unknown User")
+    return result.map(item => ({
+      ...item,
+      username: item.username || "Unknown User"
+    }));
   }
   
   async getStandupById(id: number): Promise<Standup | undefined> {

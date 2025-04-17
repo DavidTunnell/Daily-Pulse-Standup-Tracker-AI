@@ -40,6 +40,7 @@ export const insertStandupSchema = createInsertSchema(standups).pick({
 
 export type InsertStandup = z.infer<typeof insertStandupSchema>;
 export type Standup = typeof standups.$inferSelect;
+export type StandupWithUsername = Standup & { username: string };
 
 // Define relations after tables are defined to avoid circular references
 export const usersRelations = relations(users, ({ many }) => ({
