@@ -56,12 +56,12 @@ export function NavBar() {
 
   return (
     <div className="bg-background border-b mb-6">
-      <div className="container mx-auto py-3 px-4">
+      <div className="container mx-auto py-4 px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/">
               <div className="flex items-center cursor-pointer">
-                <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">DailyPulse</span>
+                <span className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-transparent bg-clip-text tracking-tight py-2">DailyPulse</span>
               </div>
             </Link>
           </div>
