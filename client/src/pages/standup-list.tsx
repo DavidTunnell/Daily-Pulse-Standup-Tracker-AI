@@ -129,6 +129,7 @@ function EditStandupForm({ standup, onSubmit, isSubmitting, onCancel }: EditStan
                   placeholder="Tasks planned, upcoming meetings, etc."
                   className="min-h-[80px]"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -169,6 +170,7 @@ function EditStandupForm({ standup, onSubmit, isSubmitting, onCancel }: EditStan
                   placeholder="Key accomplishments, breakthroughs, etc."
                   className="min-h-[80px]"
                   {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
