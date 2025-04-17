@@ -109,7 +109,8 @@ export default function StandupList() {
               <TableCaption>List of all standup entries</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">Date</TableHead>
+                  <TableHead className="w-[180px]">Created On</TableHead>
+                  <TableHead className="w-[180px]">Standup Date</TableHead>
                   <TableHead>Yesterday</TableHead>
                   <TableHead>Today</TableHead>
                   <TableHead>Blockers</TableHead>
@@ -128,6 +129,9 @@ export default function StandupList() {
                     >
                       <TableCell className="font-medium">
                         {formatDate(standup.createdAt)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
                       </TableCell>
                       <TableCell className="truncate max-w-[200px]">
                         {standup.yesterday}
@@ -160,7 +164,15 @@ export default function StandupList() {
                     </TableRow>
                     {expandedRow === standup.id && (
                       <TableRow className="bg-gray-50">
-                        <TableCell colSpan={6} className="p-4">
+                        <TableCell colSpan={7} className="p-4">
+                          <div className="mb-4">
+                            <h3 className="font-medium text-gray-900 mb-2">
+                              Standup for {standup.standupDate ? formatDate(standup.standupDate) : "Today"}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              Submitted on {formatDate(standup.createdAt)}
+                            </p>
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <h3 className="font-medium text-gray-900 mb-2">
