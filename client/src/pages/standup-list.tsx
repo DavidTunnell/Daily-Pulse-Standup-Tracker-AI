@@ -445,11 +445,9 @@ export default function StandupList() {
                       {standup.highlights || "—"}
                     </TableCell>
                     <TableCell>
-                      {isOwnStandup(standup) ? (
-                        <span className="text-blue-600 font-medium">You ({standup.username})</span>
-                      ) : (
-                        <span>{standup.username}</span>
-                      )}
+                      <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
+                        {standup.username}
+                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
