@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertStandupSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -63,6 +63,8 @@ const StandupForm = () => {
     },
     onSuccess: () => {
       setFormState("success");
+      // Invalidate the standups query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["/api/standups"] });
     },
     onError: (error) => {
       toast({

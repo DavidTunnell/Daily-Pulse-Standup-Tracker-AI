@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { getQueryFn } from "@/lib/queryClient";
+import { getQueryFn, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { Standup } from "@shared/schema";
 
@@ -24,20 +24,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Plus, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, ChevronLeft, RefreshCw } from "lucide-react";
 
 export default function StandupList() {
   const { user } = useAuth();
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     data: standups,
     isLoading,
     error,
+    refetch,
   } = useQuery<Standup[]>({
     queryKey: ["/api/standups"],
     queryFn: getQueryFn({ on401: "throw" }),
   });
+  
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
 
   const toggleExpandRow = (id: number) => {
     if (expandedRow === id) {
@@ -87,11 +95,22 @@ export default function StandupList() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>All Standups</CardTitle>
-          <CardDescription>
-            Review standup submissions from your team
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>All Standups</CardTitle>
+            <CardDescription>
+              Review standup submissions from your team
+            </CardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={isLoading || isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (
