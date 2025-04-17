@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import AuthPage from "@/pages/auth-page";
 import StandupList from "@/pages/standup-list";
 import StandupAnalysis from "@/pages/standup-analysis";
+import ProfilePage from "@/pages/profile-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
@@ -16,6 +17,7 @@ function Router() {
       <ProtectedRoute path="/" component={Home} />
       <ProtectedRoute path="/standups" component={StandupList} />
       <ProtectedRoute path="/analysis" component={StandupAnalysis} />
+      <ProtectedRoute path="/profile" component={ProfilePage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
