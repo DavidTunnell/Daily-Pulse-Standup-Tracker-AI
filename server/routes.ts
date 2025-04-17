@@ -190,7 +190,7 @@ Please provide a detailed and insightful analysis based on the user's request.
       };
 
       const command = new InvokeModelCommand({
-        modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0", // Using Claude 3 Sonnet which is known to be available
         contentType: "application/json",
         accept: "application/json",
         body: JSON.stringify(payload)

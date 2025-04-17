@@ -20,7 +20,7 @@ const bedrockClient = new BedrockRuntimeClient({
 
 export async function generateWithClaude(
   messages: ClaudeMessage[],
-  modelId: string = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+  modelId: string = "anthropic.claude-3-sonnet-20240229-v1:0" // Using Claude 3 Sonnet which is known to be available
 ): Promise<ClaudeResponse> {
   try {
     const promptMessages = messages.map((message) => ({
