@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
+import pulseLogo from "../assets/pulse-logo.png";
 
 export function NavBar() {
   const [location] = useLocation();
@@ -62,6 +63,7 @@ export function NavBar() {
             <Link href="/">
               <div className="flex items-center cursor-pointer">
                 <span className="text-5xl font-extrabold bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-transparent bg-clip-text tracking-tight py-2">DailyPulse</span>
+                <img src={pulseLogo} alt="Pulse Logo" className="h-12 ml-3" />
               </div>
             </Link>
           </div>
