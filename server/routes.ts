@@ -5,6 +5,16 @@ import { insertStandupSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+
+// Create Bedrock client
+const bedrockClient = new BedrockRuntimeClient({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+});
 
 // Middleware to check if user is authenticated
 const ensureAuthenticated = (req: any, res: any, next: any) => {
@@ -119,6 +129,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting standup:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Amazon Bedrock Claude 3.5 AI Endpoint
+  app.post("/api/analyze-standups", ensureAuthenticated, async (req, res) => {
+    try {
+      const { prompt, standups } = req.body;
+      
+      if (!prompt || !standups || !Array.isArray(standups)) {
+        return res.status(400).json({ message: "Invalid request. Prompt and standups array are required." });
+      }
+      
+      // Format standups data for Claude
+      const standupsData = standups.map(standup => {
+        const date = standup.standupDate ? new Date(standup.standupDate).toLocaleDateString() : "No date";
+        return `
+Date: ${date}
+Yesterday: ${standup.yesterday}
+Today: ${standup.today}
+Blockers: ${standup.blockers}
+Highlights: ${standup.highlights || "None"}
+        `.trim();
+      }).join("\n\n---\n\n");
+      
+      // Prepare the message for Claude
+      const message = `
+You are analyzing daily standup data for a software development team. 
+I'll provide you with standup entries, each with information about:
+- What was completed yesterday
+- What is planned for today
+- Any blockers
+- Any highlights or wins
+
+Here's the standup data:
+
+${standupsData}
+
+User's question/request: ${prompt}
+
+Please provide a detailed and insightful analysis based on the user's request.
+`.trim();
+
+      // Call Claude 3.5 Sonnet via Amazon Bedrock
+      const payload = {
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 4000,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: message
+              }
+            ]
+          }
+        ],
+        temperature: 0.7
+      };
+
+      const command = new InvokeModelCommand({
+        modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        contentType: "application/json",
+        accept: "application/json",
+        body: JSON.stringify(payload)
+      });
+
+      const response = await bedrockClient.send(command);
+      const responseBody = new TextDecoder().decode(response.body);
+      const parsedResponse = JSON.parse(responseBody);
+
+      res.json({ 
+        analysis: parsedResponse.content[0].text 
+      });
+    } catch (error) {
+      console.error("Error analyzing standups with Claude:", error);
+      res.status(500).json({ 
+        message: "Error analyzing standups", 
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
