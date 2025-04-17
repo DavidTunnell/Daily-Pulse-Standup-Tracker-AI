@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -25,6 +25,7 @@ export const standups = pgTable("standups", {
   today: text("today").notNull(),
   blockers: text("blockers").notNull(),
   highlights: text("highlights"),
+  standupDate: date("standup_date").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -34,6 +35,7 @@ export const insertStandupSchema = createInsertSchema(standups).pick({
   today: true,
   blockers: true,
   highlights: true,
+  standupDate: true,
 });
 
 export type InsertStandup = z.infer<typeof insertStandupSchema>;

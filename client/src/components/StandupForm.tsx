@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { insertStandupSchema } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { format } from "date-fns";
 
 import {
   Form,
@@ -20,7 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, CheckCircle, AlertCircle, LogOut } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, CheckCircle, AlertCircle, LogOut, CalendarIcon } from "lucide-react";
 
 // Create a form schema for just the user input fields (without userId)
 const formSchema = z.object({
@@ -28,6 +31,9 @@ const formSchema = z.object({
   today: z.string().min(1, "Please share what you're working on today"),
   blockers: z.string().min(1, "Please share any blockers or enter 'None'"),
   highlights: z.string().optional(),
+  standupDate: z.date({
+    required_error: "Please select a date for this standup",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,6 +43,7 @@ const defaultValues: FormValues = {
   today: "",
   blockers: "",
   highlights: "",
+  standupDate: new Date(),
 };
 
 const StandupForm = () => {
@@ -198,6 +205,43 @@ const StandupForm = () => {
                         placeholder="Share any achievements or milestones you're proud of"
                       />
                     </FormControl>
+                    <FormMessage className="text-sm text-red-500" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="standupDate"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Standup Date <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className="w-full pl-3 text-left font-normal flex justify-between items-center"
+                          >
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      The date this standup is for (defaults to today)
+                    </FormDescription>
                     <FormMessage className="text-sm text-red-500" />
                   </FormItem>
                 )}
