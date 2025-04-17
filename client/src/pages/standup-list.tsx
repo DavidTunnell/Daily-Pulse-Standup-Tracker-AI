@@ -119,7 +119,7 @@ export default function StandupList() {
               </TableHeader>
               <TableBody>
                 {standups.map((standup) => (
-                  <div key={standup.id}>
+                  <Fragment key={standup.id}>
                     <TableRow
                       className={`${
                         isOwnStandup(standup) ? "bg-blue-50" : ""
@@ -200,7 +200,7 @@ export default function StandupList() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </div>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>
