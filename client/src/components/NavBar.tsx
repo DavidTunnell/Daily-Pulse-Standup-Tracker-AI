@@ -56,12 +56,12 @@ export function NavBar() {
 
   return (
     <div className="bg-background border-b mb-6">
-      <div className="container mx-auto py-2 px-4">
+      <div className="container mx-auto py-3 px-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/">
               <div className="flex items-center cursor-pointer">
-                <Logo size="md" withText={!isMobile} className="mr-2" />
+                <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">DailyPulse</span>
               </div>
             </Link>
           </div>
