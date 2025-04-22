@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { User, BarChart2, List, LogOut, FileInput } from "lucide-react";
+import { User, BarChart2, List, LogOut, FileInput, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";

@@ -171,9 +171,16 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateWeekendStory(id: number, insertStory: InsertWeekendStory): Promise<WeekendStory> {
+    // Ensure images is properly handled
+    const dataToUpdate = {
+      ...insertStory,
+      // Convert to proper string[] if needed
+      images: Array.isArray(insertStory.images) ? insertStory.images : null
+    };
+    
     const [story] = await db
       .update(weekendStories)
-      .set(insertStory)
+      .set(dataToUpdate)
       .where(eq(weekendStories.id, id))
       .returning();
     

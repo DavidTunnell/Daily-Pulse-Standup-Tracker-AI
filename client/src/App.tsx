@@ -8,6 +8,7 @@ import AuthPage from "@/pages/auth-page";
 import StandupList from "@/pages/standup-list";
 import StandupAnalysis from "@/pages/standup-analysis";
 import ProfilePage from "@/pages/profile-page";
+import WeekendStories from "@/pages/weekend-stories";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
@@ -17,6 +18,7 @@ function Router() {
       <ProtectedRoute path="/" component={Home} />
       <ProtectedRoute path="/standups" component={StandupList} />
       <ProtectedRoute path="/analysis" component={StandupAnalysis} />
+      <ProtectedRoute path="/weekend-stories" component={WeekendStories} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
