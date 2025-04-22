@@ -186,7 +186,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user.id
       };
       
+      console.log("Received story data:", JSON.stringify(story, null, 2));
+      
       const validatedData = insertWeekendStorySchema.parse(story);
+      console.log("Validated data:", JSON.stringify(validatedData, null, 2));
+      
       const createdStory = await storage.createWeekendStory(validatedData);
       res.status(201).json(createdStory);
     } catch (error) {

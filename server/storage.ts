@@ -133,12 +133,22 @@ export class DatabaseStorage implements IStorage {
 
   // Weekend Stories methods
   async createWeekendStory(insertStory: InsertWeekendStory): Promise<WeekendStory> {
+    console.log("Creating weekend story with data:", JSON.stringify(insertStory, null, 2));
+    
     // Ensure data format aligns with database columns
     const dataToInsert = {
       userId: insertStory.userId,
       story: insertStory.description, // Map 'description' to 'story' column
       image_urls: Array.isArray(insertStory.images) ? insertStory.images : null // Map 'images' to 'image_urls' column
     };
+    
+    console.log("Mapped to database columns:", JSON.stringify(dataToInsert, null, 2));
+    
+    // Add check for null description
+    if (!dataToInsert.story) {
+      console.error("ERROR: story field is null or empty");
+      throw new Error("Story description cannot be empty");
+    }
     
     const [story] = await db.insert(weekendStories).values(dataToInsert).returning();
     return story;
