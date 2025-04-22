@@ -133,11 +133,11 @@ export class DatabaseStorage implements IStorage {
 
   // Weekend Stories methods
   async createWeekendStory(insertStory: InsertWeekendStory): Promise<WeekendStory> {
-    // Ensure images is properly handled
+    // Ensure data format aligns with database columns
     const dataToInsert = {
-      ...insertStory,
-      // Convert to proper string[] if needed
-      images: Array.isArray(insertStory.images) ? insertStory.images : null
+      userId: insertStory.userId,
+      story: insertStory.description, // Map 'description' to 'story' column
+      image_urls: Array.isArray(insertStory.images) ? insertStory.images : null // Map 'images' to 'image_urls' column
     };
     
     const [story] = await db.insert(weekendStories).values(dataToInsert).returning();
@@ -149,8 +149,8 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: weekendStories.id,
         userId: weekendStories.userId,
-        description: weekendStories.description,
-        images: weekendStories.images,
+        story: weekendStories.description, // Access story column but map to description property
+        image_urls: weekendStories.images, // Access image_urls column but map to images property
         createdAt: weekendStories.createdAt,
         username: users.username
       })
@@ -158,24 +158,47 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(users, eq(weekendStories.userId, users.id))
       .orderBy(desc(weekendStories.createdAt));
       
-    // Ensure username is never null (fallback to "Unknown User")
+    // Ensure username is never null and map columns to expected property names
     return result.map(item => ({
-      ...item,
+      id: item.id,
+      userId: item.userId,
+      description: item.story, // Map story to description
+      images: item.image_urls, // Map image_urls to images
+      createdAt: item.createdAt,
       username: item.username || "Unknown User"
     }));
   }
   
   async getWeekendStoryById(id: number): Promise<WeekendStory | undefined> {
-    const [story] = await db.select().from(weekendStories).where(eq(weekendStories.id, id));
-    return story;
+    const [result] = await db
+      .select({
+        id: weekendStories.id,
+        userId: weekendStories.userId,
+        story: weekendStories.description,
+        image_urls: weekendStories.images,
+        createdAt: weekendStories.createdAt,
+      })
+      .from(weekendStories)
+      .where(eq(weekendStories.id, id));
+    
+    if (!result) return undefined;
+    
+    // Map database column names to property names
+    return {
+      id: result.id,
+      userId: result.userId,
+      description: result.story,
+      images: result.image_urls,
+      createdAt: result.createdAt
+    };
   }
   
   async updateWeekendStory(id: number, insertStory: InsertWeekendStory): Promise<WeekendStory> {
-    // Ensure images is properly handled
+    // Map to the correct column names in the database
     const dataToUpdate = {
-      ...insertStory,
-      // Convert to proper string[] if needed
-      images: Array.isArray(insertStory.images) ? insertStory.images : null
+      userId: insertStory.userId,
+      story: insertStory.description, // Map 'description' to 'story' column
+      image_urls: Array.isArray(insertStory.images) ? insertStory.images : null // Map 'images' to 'image_urls' column
     };
     
     const [story] = await db
