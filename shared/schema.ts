@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, date, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -44,14 +44,41 @@ export type InsertStandup = z.infer<typeof insertStandupSchema>;
 export type Standup = typeof standups.$inferSelect;
 export type StandupWithUsername = Standup & { username: string };
 
+// Weekend Stories schema
+export const weekendStories = pgTable("weekend_stories", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  description: text("description").notNull(),
+  images: jsonb("images").$type<string[]>(), // array of image URLs
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertWeekendStorySchema = createInsertSchema(weekendStories).pick({
+  userId: true,
+  description: true,
+  images: true,
+});
+
+export type InsertWeekendStory = z.infer<typeof insertWeekendStorySchema>;
+export type WeekendStory = typeof weekendStories.$inferSelect;
+export type WeekendStoryWithUsername = WeekendStory & { username: string };
+
 // Define relations after tables are defined to avoid circular references
 export const usersRelations = relations(users, ({ many }) => ({
   standups: many(standups),
+  weekendStories: many(weekendStories),
 }));
 
 export const standupsRelations = relations(standups, ({ one }) => ({
   user: one(users, {
     fields: [standups.userId],
+    references: [users.id],
+  }),
+}));
+
+export const weekendStoriesRelations = relations(weekendStories, ({ one }) => ({
+  user: one(users, {
+    fields: [weekendStories.userId],
     references: [users.id],
   }),
 }));
