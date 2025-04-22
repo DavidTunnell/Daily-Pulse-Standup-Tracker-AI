@@ -1,4 +1,8 @@
-import { users, type User, type InsertUser, standups, type Standup, type InsertStandup, type StandupWithUsername } from "@shared/schema";
+import { 
+  users, type User, type InsertUser, 
+  standups, type Standup, type InsertStandup, type StandupWithUsername,
+  weekendStories, type WeekendStory, type InsertWeekendStory, type WeekendStoryWithUsername 
+} from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db";
 import connectPg from "connect-pg-simple";
@@ -7,15 +11,27 @@ import { pool } from "./db";
 
 // Interface with CRUD methods
 export interface IStorage {
+  // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<InsertUser>): Promise<User>;
+  
+  // Standup operations
   createStandup(standup: InsertStandup): Promise<Standup>;
   getStandupById(id: number): Promise<Standup | undefined>;
   updateStandup(id: number, standup: InsertStandup): Promise<Standup>;
   deleteStandup(id: number): Promise<void>;
   getAllStandups(): Promise<StandupWithUsername[]>;
+  
+  // Weekend Stories operations
+  createWeekendStory(story: InsertWeekendStory): Promise<WeekendStory>;
+  getWeekendStoryById(id: number): Promise<WeekendStory | undefined>;
+  updateWeekendStory(id: number, story: InsertWeekendStory): Promise<WeekendStory>;
+  deleteWeekendStory(id: number): Promise<void>;
+  getAllWeekendStories(): Promise<WeekendStoryWithUsername[]>;
+  
+  // Session store
   sessionStore: session.Store;
 }
 
@@ -113,6 +129,59 @@ export class DatabaseStorage implements IStorage {
   
   async deleteStandup(id: number): Promise<void> {
     await db.delete(standups).where(eq(standups.id, id));
+  }
+
+  // Weekend Stories methods
+  async createWeekendStory(insertStory: InsertWeekendStory): Promise<WeekendStory> {
+    // Ensure images is properly handled
+    const dataToInsert = {
+      ...insertStory,
+      // Convert to proper string[] if needed
+      images: Array.isArray(insertStory.images) ? insertStory.images : null
+    };
+    
+    const [story] = await db.insert(weekendStories).values(dataToInsert).returning();
+    return story;
+  }
+
+  async getAllWeekendStories(): Promise<WeekendStoryWithUsername[]> {
+    const result = await db
+      .select({
+        id: weekendStories.id,
+        userId: weekendStories.userId,
+        description: weekendStories.description,
+        images: weekendStories.images,
+        createdAt: weekendStories.createdAt,
+        username: users.username
+      })
+      .from(weekendStories)
+      .leftJoin(users, eq(weekendStories.userId, users.id))
+      .orderBy(desc(weekendStories.createdAt));
+      
+    // Ensure username is never null (fallback to "Unknown User")
+    return result.map(item => ({
+      ...item,
+      username: item.username || "Unknown User"
+    }));
+  }
+  
+  async getWeekendStoryById(id: number): Promise<WeekendStory | undefined> {
+    const [story] = await db.select().from(weekendStories).where(eq(weekendStories.id, id));
+    return story;
+  }
+  
+  async updateWeekendStory(id: number, insertStory: InsertWeekendStory): Promise<WeekendStory> {
+    const [story] = await db
+      .update(weekendStories)
+      .set(insertStory)
+      .where(eq(weekendStories.id, id))
+      .returning();
+    
+    return story;
+  }
+  
+  async deleteWeekendStory(id: number): Promise<void> {
+    await db.delete(weekendStories).where(eq(weekendStories.id, id));
   }
 }
 
