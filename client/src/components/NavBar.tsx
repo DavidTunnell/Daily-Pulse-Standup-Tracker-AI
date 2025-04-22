@@ -42,6 +42,12 @@ export function NavBar() {
       active: location === "/standups"
     },
     {
+      href: "/weekend-stories",
+      label: "Weekend Stories",
+      icon: <Camera className="h-5 w-5 mr-2" />,
+      active: location === "/weekend-stories"
+    },
+    {
       href: "/analysis",
       label: "AI Analysis",
       icon: <BarChart2 className="h-5 w-5 mr-2" />,
