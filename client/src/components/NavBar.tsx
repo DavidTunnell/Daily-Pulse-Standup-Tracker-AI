@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { User, BarChart2, List, LogOut, FileInput } from "lucide-react";
+import { User, BarChart2, List, LogOut, FileInput, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -40,6 +40,12 @@ export function NavBar() {
       label: "View All Standups",
       icon: <List className="h-5 w-5 mr-2" />,
       active: location === "/standups"
+    },
+    {
+      href: "/weekend-stories",
+      label: "Weekend Stories",
+      icon: <Image className="h-5 w-5 mr-2" />,
+      active: location.startsWith("/weekend-stories")
     },
     {
       href: "/analysis",

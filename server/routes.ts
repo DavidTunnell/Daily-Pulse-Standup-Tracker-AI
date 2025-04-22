@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertStandupSchema } from "@shared/schema";
+import { insertStandupSchema, insertWeekendStorySchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
@@ -247,6 +247,132 @@ Please provide a detailed and insightful analysis based on the user's request.
         message: "Error analyzing standups", 
         details: error instanceof Error ? error.message : String(error)
       });
+    }
+  });
+  
+  // WEEKEND STORIES ENDPOINTS
+  
+  // Create weekend story
+  app.post("/api/weekend-stories", ensureAuthenticated, async (req, res) => {
+    try {
+      // Include the userId from the authenticated user
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const weekendStory = {
+        ...req.body,
+        userId: req.user.id
+      };
+      
+      const validatedData = insertWeekendStorySchema.parse(weekendStory);
+      const createdStory = await storage.createWeekendStory(validatedData);
+      res.status(201).json(createdStory);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ message: validationError.message });
+      } else {
+        console.error("Error creating weekend story:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  });
+
+  // Get all weekend stories
+  app.get("/api/weekend-stories", ensureAuthenticated, async (req, res) => {
+    try {
+      const stories = await storage.getAllWeekendStories();
+      res.json(stories);
+    } catch (error) {
+      console.error("Error retrieving weekend stories:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Get single weekend story by ID
+  app.get("/api/weekend-stories/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const storyId = parseInt(req.params.id);
+      if (isNaN(storyId)) {
+        return res.status(400).json({ message: "Invalid weekend story ID" });
+      }
+      
+      const story = await storage.getWeekendStoryById(storyId);
+      if (!story) {
+        return res.status(404).json({ message: "Weekend story not found" });
+      }
+      
+      res.json(story);
+    } catch (error) {
+      console.error("Error retrieving weekend story:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  // Update weekend story
+  app.put("/api/weekend-stories/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const storyId = parseInt(req.params.id);
+      if (isNaN(storyId)) {
+        return res.status(400).json({ message: "Invalid weekend story ID" });
+      }
+      
+      // Get the story to verify ownership
+      const existingStory = await storage.getWeekendStoryById(storyId);
+      if (!existingStory) {
+        return res.status(404).json({ message: "Weekend story not found" });
+      }
+      
+      // Check if the user is the owner of the story
+      if (existingStory.userId !== req.user!.id) {
+        return res.status(403).json({ message: "You can only edit your own weekend stories" });
+      }
+      
+      const story = {
+        ...req.body,
+        id: storyId,
+        userId: req.user!.id // Ensure the userId remains the same
+      };
+      
+      const validatedData = insertWeekendStorySchema.parse(story);
+      const updatedStory = await storage.updateWeekendStory(storyId, validatedData);
+      res.json(updatedStory);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        res.status(400).json({ message: validationError.message });
+      } else {
+        console.error("Error updating weekend story:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  });
+  
+  // Delete weekend story
+  app.delete("/api/weekend-stories/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const storyId = parseInt(req.params.id);
+      if (isNaN(storyId)) {
+        return res.status(400).json({ message: "Invalid weekend story ID" });
+      }
+      
+      // Get the story to verify ownership
+      const existingStory = await storage.getWeekendStoryById(storyId);
+      if (!existingStory) {
+        return res.status(404).json({ message: "Weekend story not found" });
+      }
+      
+      // Check if the user is the owner of the story
+      if (existingStory.userId !== req.user!.id) {
+        return res.status(403).json({ message: "You can only delete your own weekend stories" });
+      }
+      
+      await storage.deleteWeekendStory(storyId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting weekend story:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

@@ -15,11 +15,21 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<InsertUser>): Promise<User>;
+  
+  // Standup methods
   createStandup(standup: InsertStandup): Promise<Standup>;
   getStandupById(id: number): Promise<Standup | undefined>;
   updateStandup(id: number, standup: InsertStandup): Promise<Standup>;
   deleteStandup(id: number): Promise<void>;
   getAllStandups(): Promise<StandupWithUsername[]>;
+  
+  // Weekend story methods
+  createWeekendStory(story: InsertWeekendStory): Promise<WeekendStory>;
+  getWeekendStoryById(id: number): Promise<WeekendStory | undefined>;
+  updateWeekendStory(id: number, story: InsertWeekendStory): Promise<WeekendStory>;
+  deleteWeekendStory(id: number): Promise<void>;
+  getAllWeekendStories(): Promise<WeekendStoryWithUsername[]>;
+  
   sessionStore: session.Store;
 }
 
@@ -117,6 +127,64 @@ export class DatabaseStorage implements IStorage {
   
   async deleteStandup(id: number): Promise<void> {
     await db.delete(standups).where(eq(standups.id, id));
+  }
+  
+  // Weekend Stories methods
+  async createWeekendStory(insertWeekendStory: InsertWeekendStory): Promise<WeekendStory> {
+    // Handle empty array for imageUrls if not provided
+    const dataToInsert = {
+      ...insertWeekendStory,
+      imageUrls: insertWeekendStory.imageUrls || []
+    };
+    
+    const [weekendStory] = await db.insert(weekendStories).values(dataToInsert).returning();
+    return weekendStory;
+  }
+
+  async getAllWeekendStories(): Promise<WeekendStoryWithUsername[]> {
+    const result = await db
+      .select({
+        id: weekendStories.id,
+        userId: weekendStories.userId,
+        story: weekendStories.story,
+        imageUrls: weekendStories.imageUrls,
+        createdAt: weekendStories.createdAt,
+        username: users.username
+      })
+      .from(weekendStories)
+      .leftJoin(users, eq(weekendStories.userId, users.id))
+      .orderBy(desc(weekendStories.createdAt));
+      
+    // Ensure username is never null (fallback to "Unknown User")
+    return result.map(item => ({
+      ...item,
+      username: item.username || "Unknown User"
+    }));
+  }
+  
+  async getWeekendStoryById(id: number): Promise<WeekendStory | undefined> {
+    const [weekendStory] = await db.select().from(weekendStories).where(eq(weekendStories.id, id));
+    return weekendStory;
+  }
+  
+  async updateWeekendStory(id: number, insertWeekendStory: InsertWeekendStory): Promise<WeekendStory> {
+    // Handle empty array for imageUrls if not provided
+    const dataToUpdate = {
+      ...insertWeekendStory,
+      imageUrls: insertWeekendStory.imageUrls || []
+    };
+    
+    const [weekendStory] = await db
+      .update(weekendStories)
+      .set(dataToUpdate)
+      .where(eq(weekendStories.id, id))
+      .returning();
+    
+    return weekendStory;
+  }
+  
+  async deleteWeekendStory(id: number): Promise<void> {
+    await db.delete(weekendStories).where(eq(weekendStories.id, id));
   }
 }
 
