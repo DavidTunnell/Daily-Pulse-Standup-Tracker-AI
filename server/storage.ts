@@ -135,16 +135,23 @@ export class DatabaseStorage implements IStorage {
   async createWeekendStory(insertStory: InsertWeekendStory): Promise<WeekendStory> {
     console.log("Creating weekend story with data:", JSON.stringify(insertStory, null, 2));
     
-    // Explicitly create a record with the right fields
-    const record = {
+    // Drizzle handles the field mapping based on the schema
+    // We use the same property names as defined in schema.ts
+    const validatedInsert = {
       userId: insertStory.userId,
       description: insertStory.description,
-      // Ensure images is always an array or null
-      images: Array.isArray(insertStory.images) ? insertStory.images : []
+      images: insertStory.images || [] // Ensure we have at least an empty array
     };
     
-    const [story] = await db.insert(weekendStories).values([record]).returning();
-    return story;
+    console.log("Sending to DB:", JSON.stringify(validatedInsert, null, 2));
+    
+    try {
+      const [story] = await db.insert(weekendStories).values(validatedInsert).returning();
+      return story;
+    } catch (error) {
+      console.error("DB Insert Error:", error);
+      throw error;
+    }
   }
 
   async getAllWeekendStories(): Promise<WeekendStoryWithUsername[]> {
@@ -197,21 +204,25 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateWeekendStory(id: number, insertStory: InsertWeekendStory): Promise<WeekendStory> {
-    // We need to manually map the fields for update
-    const record = {
+    // Similar approach as createWeekendStory
+    const validatedUpdate = {
       userId: insertStory.userId,
       description: insertStory.description,
-      // Ensure images is always an array or null
-      images: Array.isArray(insertStory.images) ? insertStory.images : []
+      images: insertStory.images || [] // Ensure we have at least an empty array
     };
     
-    const [story] = await db
-      .update(weekendStories)
-      .set(record)
-      .where(eq(weekendStories.id, id))
-      .returning();
-    
-    return story;
+    try {
+      const [story] = await db
+        .update(weekendStories)
+        .set(validatedUpdate)
+        .where(eq(weekendStories.id, id))
+        .returning();
+      
+      return story;
+    } catch (error) {
+      console.error("DB Update Error:", error);
+      throw error;
+    }
   }
   
   async deleteWeekendStory(id: number): Promise<void> {

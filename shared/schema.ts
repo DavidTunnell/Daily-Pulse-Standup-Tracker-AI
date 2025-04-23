@@ -49,7 +49,7 @@ export const weekendStories = pgTable("weekend_stories", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   description: text("story").notNull(), // Using the 'story' column from database
-  images: jsonb("image_urls").$type<string[]>(), // Using the 'image_urls' column from database
+  images: text("image_urls").array(), // Using the 'image_urls' column which is a text ARRAY
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
