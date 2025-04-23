@@ -82,13 +82,58 @@ export function WeekendStoriesForm() {
     setImageFiles(prev => [...prev, ...newFiles]);
   };
 
-  // Convert File objects to base64 strings
+  // Convert and optimize File objects to base64 strings
   const convertImagesToBase64 = async (files: File[]): Promise<string[]> => {
+    const MAX_WIDTH = 1200; // Maximum width for the image
+    const MAX_HEIGHT = 1200; // Maximum height for the image
+    const QUALITY = 0.7; // Image quality (0.7 = 70% quality)
+    
     const promises = files.map(file => {
       return new Promise<string>((resolve, reject) => {
+        // First convert the file to a data URL
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
+        
+        reader.onload = (event) => {
+          // Create an image to resize
+          const img = new Image();
+          img.src = event.target?.result as string;
+          
+          img.onload = () => {
+            // Create a canvas to resize the image
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculate new dimensions maintaining aspect ratio
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height = Math.round(height * (MAX_WIDTH / width));
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width = Math.round(width * (MAX_HEIGHT / height));
+                height = MAX_HEIGHT;
+              }
+            }
+            
+            // Resize the image
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            
+            // Convert to base64 with reduced quality
+            const dataUrl = canvas.toDataURL('image/jpeg', QUALITY);
+            resolve(dataUrl);
+          };
+          
+          img.onerror = () => {
+            reject(new Error('Failed to load image'));
+          };
+        };
+        
         reader.onerror = error => reject(error);
       });
     });
