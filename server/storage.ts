@@ -135,22 +135,15 @@ export class DatabaseStorage implements IStorage {
   async createWeekendStory(insertStory: InsertWeekendStory): Promise<WeekendStory> {
     console.log("Creating weekend story with data:", JSON.stringify(insertStory, null, 2));
     
-    // Ensure data format aligns with database columns
-    const dataToInsert = {
+    // Explicitly create a record with the right fields
+    const record = {
       userId: insertStory.userId,
-      story: insertStory.description, // Map 'description' to 'story' column
-      image_urls: Array.isArray(insertStory.images) ? insertStory.images : null // Map 'images' to 'image_urls' column
+      description: insertStory.description,
+      // Ensure images is always an array or null
+      images: Array.isArray(insertStory.images) ? insertStory.images : []
     };
     
-    console.log("Mapped to database columns:", JSON.stringify(dataToInsert, null, 2));
-    
-    // Add check for null description
-    if (!dataToInsert.story) {
-      console.error("ERROR: story field is null or empty");
-      throw new Error("Story description cannot be empty");
-    }
-    
-    const [story] = await db.insert(weekendStories).values(dataToInsert).returning();
+    const [story] = await db.insert(weekendStories).values([record]).returning();
     return story;
   }
 
@@ -204,16 +197,17 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateWeekendStory(id: number, insertStory: InsertWeekendStory): Promise<WeekendStory> {
-    // Map to the correct column names in the database
-    const dataToUpdate = {
+    // We need to manually map the fields for update
+    const record = {
       userId: insertStory.userId,
-      story: insertStory.description, // Map 'description' to 'story' column
-      image_urls: Array.isArray(insertStory.images) ? insertStory.images : null // Map 'images' to 'image_urls' column
+      description: insertStory.description,
+      // Ensure images is always an array or null
+      images: Array.isArray(insertStory.images) ? insertStory.images : []
     };
     
     const [story] = await db
       .update(weekendStories)
-      .set(dataToUpdate)
+      .set(record)
       .where(eq(weekendStories.id, id))
       .returning();
     
