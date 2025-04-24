@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   firstName: text("first_name"),
   lastName: text("last_name"),
   jiraProfileId: text("jira_profile_id"),
+  avatar: text("avatar"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -18,6 +19,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   jiraProfileId: true,
+  avatar: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

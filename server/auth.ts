@@ -133,4 +133,30 @@ export function setupAuth(app: Express) {
       next(error);
     }
   });
+  
+  // Route for avatar upload
+  app.post("/api/user/avatar", async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    
+    try {
+      const userId = req.user!.id;
+      
+      // Extract avatar URL from request body
+      const { avatar } = req.body;
+      if (!avatar) {
+        return res.status(400).json({ message: "Avatar URL is required" });
+      }
+      
+      // Update user with new avatar
+      const updatedUser = await storage.updateUser(userId, { avatar });
+      
+      // Update the user in the session
+      req.login(updatedUser, (err) => {
+        if (err) return next(err);
+        res.status(200).json(updatedUser);
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 }
