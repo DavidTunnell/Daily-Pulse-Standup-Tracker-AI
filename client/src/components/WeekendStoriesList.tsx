@@ -100,7 +100,7 @@ export function WeekendStoriesList() {
           <CardHeader>
             <div className="flex justify-between items-start">
               <div className="flex items-start gap-3">
-                <Avatar className="h-10 w-10">
+                <Avatar className="h-12 w-12">
                   <AvatarImage src={story.avatar || undefined} alt={story.username} />
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {story.firstName && story.lastName 

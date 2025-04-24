@@ -413,13 +413,13 @@ export default function StandupList() {
               <TableCaption>List of all standup entries</TableCaption>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Author</TableHead>
                   <TableHead className="w-[180px]">Created On</TableHead>
                   <TableHead className="w-[180px]">Standup Date</TableHead>
                   <TableHead>Yesterday</TableHead>
                   <TableHead>Today</TableHead>
                   <TableHead>Blockers</TableHead>
                   <TableHead>Highlights</TableHead>
-                  <TableHead>Author</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -432,6 +432,23 @@ export default function StandupList() {
                     } hover:bg-gray-50 cursor-pointer`}
                     onClick={() => toggleExpandRow(standup.id)}
                   >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={standup.avatar || undefined} alt={standup.username} />
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {standup.firstName && standup.lastName 
+                              ? `${standup.firstName[0]}${standup.lastName[0]}`.toUpperCase()
+                              : standup.username[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
+                          {standup.firstName && standup.lastName 
+                            ? `${standup.firstName} ${standup.lastName}` 
+                            : standup.username}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium">
                       {formatDateTime(standup.createdAt)}
                     </TableCell>
@@ -449,23 +466,6 @@ export default function StandupList() {
                     </TableCell>
                     <TableCell className="truncate max-w-[200px]">
                       {standup.highlights || "—"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={standup.avatar || undefined} alt={standup.username} />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {standup.firstName && standup.lastName 
-                              ? `${standup.firstName[0]}${standup.lastName[0]}`.toUpperCase()
-                              : standup.username[0].toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
-                          {standup.firstName && standup.lastName 
-                            ? `${standup.firstName} ${standup.lastName}` 
-                            : standup.username}
-                        </span>
-                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
