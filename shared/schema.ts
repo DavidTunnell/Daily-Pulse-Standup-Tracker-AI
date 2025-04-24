@@ -7,12 +7,16 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   jiraProfileId: text("jira_profile_id"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  firstName: true,
+  lastName: true,
   jiraProfileId: true,
 });
 
