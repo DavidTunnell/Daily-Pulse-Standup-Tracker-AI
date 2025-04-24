@@ -93,7 +93,9 @@ export class DatabaseStorage implements IStorage {
         highlights: standups.highlights,
         standupDate: standups.standupDate,
         createdAt: standups.createdAt,
-        username: users.username
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName
       })
       .from(standups)
       .leftJoin(users, eq(standups.userId, users.id))
@@ -162,7 +164,9 @@ export class DatabaseStorage implements IStorage {
         story: weekendStories.description, // Access story column but map to description property
         image_urls: weekendStories.images, // Access image_urls column but map to images property
         createdAt: weekendStories.createdAt,
-        username: users.username
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName
       })
       .from(weekendStories)
       .leftJoin(users, eq(weekendStories.userId, users.id))
@@ -175,7 +179,9 @@ export class DatabaseStorage implements IStorage {
       description: item.story, // Map story to description
       images: item.image_urls, // Map image_urls to images
       createdAt: item.createdAt,
-      username: item.username || "Unknown User"
+      username: item.username || "Unknown User",
+      firstName: item.firstName,
+      lastName: item.lastName
     }));
   }
   

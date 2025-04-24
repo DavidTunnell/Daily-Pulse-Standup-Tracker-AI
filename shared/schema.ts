@@ -46,7 +46,11 @@ export const insertStandupSchema = createInsertSchema(standups).pick({
 
 export type InsertStandup = z.infer<typeof insertStandupSchema>;
 export type Standup = typeof standups.$inferSelect;
-export type StandupWithUsername = Standup & { username: string };
+export type StandupWithUsername = Standup & { 
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+};
 
 // Weekend Stories schema
 export const weekendStories = pgTable("weekend_stories", {
@@ -65,7 +69,11 @@ export const insertWeekendStorySchema = createInsertSchema(weekendStories).pick(
 
 export type InsertWeekendStory = z.infer<typeof insertWeekendStorySchema>;
 export type WeekendStory = typeof weekendStories.$inferSelect;
-export type WeekendStoryWithUsername = WeekendStory & { username: string };
+export type WeekendStoryWithUsername = WeekendStory & { 
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+};
 
 // Define relations after tables are defined to avoid circular references
 export const usersRelations = relations(users, ({ many }) => ({
