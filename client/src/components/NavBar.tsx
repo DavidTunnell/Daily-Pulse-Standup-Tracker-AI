@@ -118,7 +118,11 @@ export function NavBar() {
             <div className="flex items-center">
               {!isMobile && (
                 <div className="text-sm text-gray-600 mr-2">
-                  Logged in as <span className="font-semibold">{user.username}</span>
+                  Logged in as <span className="font-semibold">
+                    {user.firstName && user.lastName 
+                      ? `${user.firstName} ${user.lastName}` 
+                      : user.username}
+                  </span>
                 </div>
               )}
               <Button 
