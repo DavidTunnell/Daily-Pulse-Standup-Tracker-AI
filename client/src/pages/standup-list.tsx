@@ -414,7 +414,6 @@ export default function StandupList() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Author</TableHead>
-                  <TableHead className="w-[180px]">Created On</TableHead>
                   <TableHead className="w-[180px]">Standup Date</TableHead>
                   <TableHead>Yesterday</TableHead>
                   <TableHead>Today</TableHead>
@@ -448,9 +447,6 @@ export default function StandupList() {
                             : standup.username}
                         </span>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatDateTime(standup.createdAt)}
                     </TableCell>
                     <TableCell className="font-medium">
                       {standup.standupDate ? formatDateOnly(standup.standupDate) : "Today"}
@@ -503,7 +499,7 @@ export default function StandupList() {
                   </TableRow>,
                   expandedRow === standup.id && (
                     <TableRow key={`expanded-${standup.id}`} className="bg-gray-50">
-                      <TableCell colSpan={8} className="p-4">
+                      <TableCell colSpan={7} className="p-4">
                         <div className="mb-4">
                           <h3 className="font-medium text-gray-900 mb-2">
                             Standup for {standup.standupDate ? formatDateOnly(standup.standupDate) : "Today"}
