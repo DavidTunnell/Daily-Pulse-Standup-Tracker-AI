@@ -451,11 +451,21 @@ export default function StandupList() {
                       {standup.highlights || "—"}
                     </TableCell>
                     <TableCell>
-                      <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
-                        {standup.firstName && standup.lastName 
-                          ? `${standup.firstName} ${standup.lastName}` 
-                          : standup.username}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={standup.avatar || undefined} alt={standup.username} />
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {standup.firstName && standup.lastName 
+                              ? `${standup.firstName[0]}${standup.lastName[0]}`.toUpperCase()
+                              : standup.username[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
+                          {standup.firstName && standup.lastName 
+                            ? `${standup.firstName} ${standup.lastName}` 
+                            : standup.username}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-1">
