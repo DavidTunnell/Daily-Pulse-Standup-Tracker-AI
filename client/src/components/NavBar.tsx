@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import pulseLogo from "../assets/pulse-logo.png";
 
 export function NavBar() {
@@ -116,6 +117,17 @@ export function NavBar() {
             </nav>
 
             <div className="flex items-center">
+              <Link href="/profile">
+                <Avatar className="h-8 w-8 mr-2 cursor-pointer">
+                  <AvatarImage src={user.avatar || undefined} alt={user.username} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {user.firstName && user.lastName 
+                      ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
+                      : user.username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+              
               {!isMobile && (
                 <div className="text-sm text-gray-600 mr-2">
                   Logged in as <span className="font-semibold">

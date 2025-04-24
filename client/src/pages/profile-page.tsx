@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
 import { Helmet } from "react-helmet";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 import {
   Form,
@@ -134,6 +135,14 @@ export default function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Avatar Upload */}
+          <AvatarUpload 
+            avatarUrl={user.avatar} 
+            username={user.username}
+            firstName={user.firstName}
+            lastName={user.lastName}
+          />
+          
           {formState === "success" && (
             <Alert className="mb-6 bg-green-50 text-green-800 border-green-200">
               <CheckCircle className="h-4 w-4 text-green-600" />
