@@ -27,6 +27,8 @@ import { Loader2, CheckCircle, AlertCircle, User, Lock, Link2 } from "lucide-rea
 // Form schema for profile update
 const profileSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
+  firstName: z.string().optional().or(z.literal('')),
+  lastName: z.string().optional().or(z.literal('')),
   password: z.string()
     .min(6, "Password must be at least 6 characters")
     .optional()
@@ -68,6 +70,8 @@ export default function ProfilePage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       username: user.username,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
       password: "",
       confirmPassword: "",
       jiraProfileId: user.jiraProfileId || "",
