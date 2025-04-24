@@ -433,10 +433,10 @@ export default function StandupList() {
                     onClick={() => toggleExpandRow(standup.id)}
                   >
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
+                      <div className="flex items-center gap-5">
+                        <Avatar className="h-16 w-16">
                           <AvatarImage src={standup.avatar || undefined} alt={standup.username} />
-                          <AvatarFallback className="bg-primary/10 text-primary">
+                          <AvatarFallback className="bg-primary/10 text-primary text-lg">
                             {standup.firstName && standup.lastName 
                               ? `${standup.firstName[0]}${standup.lastName[0]}`.toUpperCase()
                               : standup.username[0].toUpperCase()}

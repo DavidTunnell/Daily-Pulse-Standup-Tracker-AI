@@ -99,10 +99,10 @@ export function WeekendStoriesList() {
         <Card key={story.id} className="overflow-hidden">
           <CardHeader>
             <div className="flex justify-between items-start">
-              <div className="flex items-start gap-3">
-                <Avatar className="h-12 w-12">
+              <div className="flex items-start gap-5">
+                <Avatar className="h-16 w-16">
                   <AvatarImage src={story.avatar || undefined} alt={story.username} />
-                  <AvatarFallback className="bg-primary/10 text-primary">
+                  <AvatarFallback className="bg-primary/10 text-primary text-lg">
                     {story.firstName && story.lastName 
                       ? `${story.firstName[0]}${story.lastName[0]}`.toUpperCase()
                       : story.username[0].toUpperCase()}
