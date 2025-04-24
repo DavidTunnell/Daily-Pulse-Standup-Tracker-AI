@@ -100,7 +100,11 @@ export function WeekendStoriesList() {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <span>{story.username}</span>
+                  <span>
+                    {story.firstName && story.lastName 
+                      ? `${story.firstName} ${story.lastName}` 
+                      : story.username}
+                  </span>
                   {isOwnStory(story) && (
                     <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                       You
@@ -144,7 +148,9 @@ export function WeekendStoriesList() {
                   >
                     <img
                       src={image}
-                      alt={`Photo from ${story.username}'s weekend`}
+                      alt={`Photo from ${story.firstName && story.lastName 
+                        ? `${story.firstName} ${story.lastName}` 
+                        : story.username}'s weekend`}
                       className="h-48 w-full object-cover transition-transform hover:scale-105"
                     />
                   </div>

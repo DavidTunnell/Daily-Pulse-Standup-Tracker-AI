@@ -451,7 +451,9 @@ export default function StandupList() {
                     </TableCell>
                     <TableCell>
                       <span className={isOwnStandup(standup) ? "text-blue-600 font-medium" : ""}>
-                        {standup.username}
+                        {standup.firstName && standup.lastName 
+                          ? `${standup.firstName} ${standup.lastName}` 
+                          : standup.username}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
