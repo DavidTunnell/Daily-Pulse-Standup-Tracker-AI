@@ -433,9 +433,9 @@ export default function StandupList() {
                   >
                     <TableCell>
                       <div className="flex items-center gap-5">
-                        <Avatar className="h-24 w-24">
+                        <Avatar className="h-16 w-16">
                           <AvatarImage src={standup.avatar || undefined} alt={standup.username} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                          <AvatarFallback className="bg-primary/10 text-primary text-lg">
                             {standup.firstName && standup.lastName 
                               ? `${standup.firstName[0]}${standup.lastName[0]}`.toUpperCase()
                               : standup.username[0].toUpperCase()}
