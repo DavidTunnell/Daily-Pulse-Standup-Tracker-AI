@@ -95,7 +95,8 @@ export class DatabaseStorage implements IStorage {
         createdAt: standups.createdAt,
         username: users.username,
         firstName: users.firstName,
-        lastName: users.lastName
+        lastName: users.lastName,
+        avatar: users.avatar
       })
       .from(standups)
       .leftJoin(users, eq(standups.userId, users.id))
@@ -166,7 +167,8 @@ export class DatabaseStorage implements IStorage {
         createdAt: weekendStories.createdAt,
         username: users.username,
         firstName: users.firstName,
-        lastName: users.lastName
+        lastName: users.lastName,
+        avatar: users.avatar
       })
       .from(weekendStories)
       .leftJoin(users, eq(weekendStories.userId, users.id))
@@ -181,7 +183,8 @@ export class DatabaseStorage implements IStorage {
       createdAt: item.createdAt,
       username: item.username || "Unknown User",
       firstName: item.firstName,
-      lastName: item.lastName
+      lastName: item.lastName,
+      avatar: item.avatar
     }));
   }
   

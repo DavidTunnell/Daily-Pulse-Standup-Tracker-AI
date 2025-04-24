@@ -52,6 +52,7 @@ export type StandupWithUsername = Standup & {
   username: string;
   firstName?: string | null;
   lastName?: string | null;
+  avatar?: string | null;
 };
 
 // Weekend Stories schema
@@ -75,6 +76,7 @@ export type WeekendStoryWithUsername = WeekendStory & {
   username: string;
   firstName?: string | null;
   lastName?: string | null;
+  avatar?: string | null;
 };
 
 // Define relations after tables are defined to avoid circular references

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Edit, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function WeekendStoriesList() {
   const { user } = useAuth();
@@ -98,20 +99,30 @@ export function WeekendStoriesList() {
         <Card key={story.id} className="overflow-hidden">
           <CardHeader>
             <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <span>
+              <div className="flex items-start gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={story.avatar || undefined} alt={story.username} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
                     {story.firstName && story.lastName 
-                      ? `${story.firstName} ${story.lastName}` 
-                      : story.username}
-                  </span>
-                  {isOwnStory(story) && (
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                      You
+                      ? `${story.firstName[0]}${story.lastName[0]}`.toUpperCase()
+                      : story.username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <span>
+                      {story.firstName && story.lastName 
+                        ? `${story.firstName} ${story.lastName}` 
+                        : story.username}
                     </span>
-                  )}
-                </CardTitle>
-                <CardDescription>{formatDate(story.createdAt)}</CardDescription>
+                    {isOwnStory(story) && (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                        You
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription>{formatDate(story.createdAt)}</CardDescription>
+                </div>
               </div>
               
               {/* Action buttons for own stories */}
