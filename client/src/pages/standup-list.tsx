@@ -12,6 +12,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Logo } from "@/components/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Maximize2 } from "lucide-react";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 import {
   Table,
@@ -251,8 +254,10 @@ export default function StandupList() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [standupToEdit, setStandupToEdit] = useState<StandupWithUsername | null>(null);
   const [standupToDelete, setStandupToDelete] = useState<StandupWithUsername | null>(null);
+  const [fullPageStandup, setFullPageStandup] = useState<StandupWithUsername | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fullPageModalOpen, setFullPageModalOpen] = useState(false);
 
   const {
     data: standups,
@@ -361,6 +366,13 @@ export default function StandupList() {
     if (standupToDelete) {
       deleteMutation.mutate(standupToDelete.id);
     }
+  };
+  
+  // Handler for opening the full-page modal
+  const openFullPageModal = (standup: StandupWithUsername, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFullPageStandup(standup);
+    setFullPageModalOpen(true);
   };
 
   return (
@@ -474,6 +486,15 @@ export default function StandupList() {
                           }}
                         >
                           {expandedRow === standup.id ? "Hide" : "View"}
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => openFullPageModal(standup, e)}
+                        >
+                          <Maximize2 className="h-4 w-4 mr-1" />
+                          Expand
                         </Button>
                         
                         {isOwnStandup(standup) && (
@@ -623,6 +644,125 @@ export default function StandupList() {
           />}
         </DialogContent>
       </Dialog>
+
+      {/* Full Page Modal */}
+      <Sheet 
+        open={fullPageModalOpen} 
+        onOpenChange={(open) => {
+          setFullPageModalOpen(open);
+          if (!open) {
+            setFullPageStandup(null);
+          }
+        }}
+        modal={true}
+        side="bottom"
+      >
+        <SheetContent className="h-screen flex flex-col p-0" hideCloseButton={false}>
+          {fullPageStandup && (
+            <div className="flex flex-col h-full">
+              <SheetHeader className="px-6 py-6 border-b sticky top-0 bg-white z-10">
+                <div className="flex items-center gap-5">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={fullPageStandup.avatar || undefined} alt={fullPageStandup.username} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-lg">
+                      {fullPageStandup.firstName && fullPageStandup.lastName 
+                        ? `${fullPageStandup.firstName[0]}${fullPageStandup.lastName[0]}`.toUpperCase()
+                        : fullPageStandup.username[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <SheetTitle className="text-left text-2xl">
+                      {fullPageStandup.firstName && fullPageStandup.lastName 
+                        ? `${fullPageStandup.firstName} ${fullPageStandup.lastName}'s Standup` 
+                        : `${fullPageStandup.username}'s Standup`}
+                    </SheetTitle>
+                    <SheetDescription className="text-left">
+                      {fullPageStandup.standupDate 
+                        ? formatDateOnly(fullPageStandup.standupDate) 
+                        : "Today"} - Submitted on {formatDateTime(fullPageStandup.createdAt)}
+                    </SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+              
+              <ScrollArea className="flex-1 p-6">
+                <div className="max-w-3xl mx-auto space-y-8">
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-blue-800 mb-4">
+                      What did you work on yesterday?
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+                      {fullPageStandup.yesterday}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-green-800 mb-4">
+                      What will you work on today?
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+                      {fullPageStandup.today}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-amber-50 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-amber-800 mb-4">
+                      Any blockers?
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+                      {fullPageStandup.blockers || "No blockers reported."}
+                    </p>
+                  </div>
+                  
+                  {fullPageStandup.highlights && (
+                    <div className="bg-purple-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-purple-800 mb-4">
+                        Highlights / Big Wins
+                      </h3>
+                      <p className="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed">
+                        {fullPageStandup.highlights}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+              
+              <div className="border-t p-4 flex justify-end gap-2 bg-white sticky bottom-0">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setFullPageModalOpen(false)}
+                >
+                  Close
+                </Button>
+                {isOwnStandup(fullPageStandup) && (
+                  <>
+                    <Button 
+                      variant="outline"
+                      onClick={(e) => {
+                        setFullPageModalOpen(false);
+                        handleEditStandup(fullPageStandup, e as React.MouseEvent<HTMLButtonElement>);
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={(e) => {
+                        setFullPageModalOpen(false);
+                        handleDeleteStandup(fullPageStandup, e as React.MouseEvent<HTMLButtonElement>);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
