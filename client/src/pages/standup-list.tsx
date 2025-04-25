@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { format } from "date-fns";
+import { format, startOfWeek, addDays, isWithinInterval, startOfDay, endOfDay, parseISO } from "date-fns";
 import { getQueryFn, queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { Standup, InsertStandup, insertStandupSchema, StandupWithUsername } from "@shared/schema";
@@ -13,8 +13,7 @@ import { z } from "zod";
 import { Logo } from "@/components/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Maximize2 } from "lucide-react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetFooter } from "@/components/ui/sheet";
 
 import {
   Table,
@@ -37,7 +36,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   CalendarIcon, 
@@ -50,7 +49,10 @@ import {
   Loader2, 
   Edit, 
   Trash2, 
-  AlertCircle 
+  AlertCircle,
+  Maximize2,
+  CalendarRange, 
+  Grid
 } from "lucide-react";
 import {
   Card,
@@ -216,7 +218,7 @@ function EditStandupForm({ standup, onSubmit, isSubmitting, onCancel }: EditStan
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
+                  <CalendarUI
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
@@ -258,6 +260,7 @@ export default function StandupList() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [fullPageModalOpen, setFullPageModalOpen] = useState(false);
+  const [weeklyViewOpen, setWeeklyViewOpen] = useState(false);
 
   const {
     data: standups,
@@ -399,15 +402,25 @@ export default function StandupList() {
               Review standup submissions from your team
             </CardDescription>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh}
-            disabled={isLoading || isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setWeeklyViewOpen(true)}
+            >
+              <CalendarRange className="h-4 w-4 mr-1" />
+              Weekly View
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isLoading || isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -654,10 +667,8 @@ export default function StandupList() {
             setFullPageStandup(null);
           }
         }}
-        modal={true}
-        side="bottom"
       >
-        <SheetContent className="h-screen flex flex-col p-0" hideCloseButton={false}>
+        <SheetContent className="h-screen flex flex-col p-0" side="bottom">
           {fullPageStandup && (
             <div className="flex flex-col h-full">
               <SheetHeader className="px-6 py-6 border-b sticky top-0 bg-white z-10">
@@ -761,6 +772,105 @@ export default function StandupList() {
               </div>
             </div>
           )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Weekly View Dialog */}
+      <Sheet 
+        open={weeklyViewOpen}
+        onOpenChange={setWeeklyViewOpen}
+      >
+        <SheetContent className="h-screen flex flex-col overflow-auto" side="right" size="full">
+          <SheetHeader className="border-b pb-4 mb-4">
+            <SheetTitle className="text-2xl">Weekly Standup Overview</SheetTitle>
+            <SheetDescription>
+              View all standups organized by date and team member
+            </SheetDescription>
+          </SheetHeader>
+          
+          {standups && standups.length > 0 ? (
+            <div className="h-full">
+              <div className="grid grid-cols-7 gap-1">
+                <div className="p-2 bg-gray-100 rounded-tl-md">
+                  <div className="flex items-center justify-center">
+                    <CalendarIcon className="h-5 w-5 text-gray-500 mr-2" />
+                  </div>
+                </div>
+                {['Monday, April 21', 'Tuesday, April 22', 'Wednesday, April 23', 'Thursday, April 24', 'Friday, April 25'].map((day, i) => (
+                  <div key={i} className="p-2 font-medium text-center bg-blue-50 border-b border-blue-200">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-1 mt-1">
+                <div className="sticky left-0 p-2 bg-gray-100">
+                  <div className="text-sm font-medium text-center mb-2">Today</div>
+                </div>
+                {[...Array(5)].map((_, i) => (
+                  <div key={`today-${i}`} className="p-2 bg-emerald-50 border border-emerald-100 min-h-[100px]">
+                    {standups.filter(s => s.standupDate && 
+                      format(new Date(s.standupDate), 'EEE, MMM d') === 
+                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                    ).map(s => (
+                      <div key={`today-item-${s.id}`} className="text-xs mb-2">
+                        {s.today}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-1 mt-1">
+                <div className="sticky left-0 p-2 bg-gray-100">
+                  <div className="text-sm font-medium text-center mb-2">Blockers</div>
+                </div>
+                {[...Array(5)].map((_, i) => (
+                  <div key={`blockers-${i}`} className="p-2 bg-amber-50 border border-amber-100 min-h-[100px]">
+                    {standups.filter(s => s.standupDate && 
+                      format(new Date(s.standupDate), 'EEE, MMM d') === 
+                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                    ).map(s => (
+                      <div key={`blockers-item-${s.id}`} className="text-xs mb-2">
+                        {s.blockers || "No blockers"}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-1 mt-1">
+                <div className="sticky left-0 p-2 bg-gray-100 rounded-bl-md">
+                  <div className="text-sm font-medium text-center mb-2">Yesterday</div>
+                </div>
+                {[...Array(5)].map((_, i) => (
+                  <div key={`yesterday-${i}`} className="p-2 bg-blue-50 border border-blue-100 min-h-[100px]">
+                    {standups.filter(s => s.standupDate && 
+                      format(new Date(s.standupDate), 'EEE, MMM d') === 
+                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                    ).map(s => (
+                      <div key={`yesterday-item-${s.id}`} className="text-xs mb-2">
+                        {s.yesterday}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full">
+              <p className="text-gray-500 mb-2">No standups data available for the week.</p>
+              <Button onClick={() => setWeeklyViewOpen(false)} variant="outline" size="sm">
+                Close
+              </Button>
+            </div>
+          )}
+          
+          <SheetFooter className="border-t pt-4 mt-auto">
+            <Button onClick={() => setWeeklyViewOpen(false)}>
+              Close Weekly View
+            </Button>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     </div>
