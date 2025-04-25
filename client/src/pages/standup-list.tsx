@@ -776,89 +776,103 @@ export default function StandupList() {
       </Sheet>
 
       {/* Weekly View Dialog */}
-      <Sheet 
+      <Dialog 
         open={weeklyViewOpen}
         onOpenChange={setWeeklyViewOpen}
+        modal={true}
       >
-        <SheetContent className="h-screen flex flex-col overflow-auto w-full max-w-full" side="right">
-          <SheetHeader className="border-b pb-4 mb-4">
-            <SheetTitle className="text-2xl">Weekly Standup Overview</SheetTitle>
-            <SheetDescription>
+        <DialogContent className="max-w-5xl h-[90vh] flex flex-col overflow-auto p-6">
+          <DialogHeader className="pb-4 mb-4 text-center">
+            <DialogTitle className="text-2xl">Weekly Standup Overview</DialogTitle>
+            <DialogDescription>
               View all standups organized by date and team member
-            </SheetDescription>
-          </SheetHeader>
+            </DialogDescription>
+          </DialogHeader>
           
           {standups && standups.length > 0 ? (
-            <div className="h-full">
-              <div className="grid grid-cols-7 gap-1">
-                <div className="p-2 bg-gray-100 rounded-tl-md">
-                  <div className="flex items-center justify-center">
-                    <CalendarIcon className="h-5 w-5 text-gray-500 mr-2" />
-                  </div>
+            <div className="flex-1 overflow-auto p-4 rounded-md bg-gray-50">
+              <div className="grid grid-cols-6 gap-1 mb-4">
+                <div className="p-3 bg-gray-100 rounded-tl-md flex items-center justify-center">
+                  <CalendarIcon className="h-5 w-5 text-gray-500" />
                 </div>
                 {['Monday, April 21', 'Tuesday, April 22', 'Wednesday, April 23', 'Thursday, April 24', 'Friday, April 25'].map((day, i) => (
-                  <div key={i} className="p-2 font-medium text-center bg-blue-50 border-b border-blue-200">
-                    {day}
+                  <div key={i} className="p-2 font-medium text-center bg-white border-b border-gray-200">
+                    <div>{day.split(',')[0]}</div>
+                    <div className="text-sm">April {21 + i}</div>
                   </div>
                 ))}
               </div>
               
-              <div className="grid grid-cols-7 gap-1 mt-1">
-                <div className="sticky left-0 p-2 bg-gray-100">
-                  <div className="text-sm font-medium text-center mb-2">Today</div>
+              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
+                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
+                  Today
                 </div>
                 {[...Array(5)].map((_, i) => (
-                  <div key={`today-${i}`} className="p-2 bg-emerald-50 border border-emerald-100 min-h-[100px]">
-                    {standups.filter(s => s.standupDate && 
-                      format(new Date(s.standupDate), 'EEE, MMM d') === 
-                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                    ).map(s => (
-                      <div key={`today-item-${s.id}`} className="text-xs mb-2">
-                        {s.today}
-                      </div>
-                    ))}
+                  <div key={`today-${i}`} className="p-2 bg-emerald-50 min-h-[100px]">
+                    {standups
+                      .filter(s => s.standupDate && 
+                        format(new Date(s.standupDate), 'EEE, MMM d') === 
+                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                      )
+                      .sort((a, b) => a.userId - b.userId)
+                      .map(s => (
+                        <div key={`today-item-${s.id}`} className="text-xs mb-2">
+                          {s.today && s.today.slice(0, 40) + (s.today.length > 40 ? '...' : '')}
+                        </div>
+                      ))
+                    }
                   </div>
                 ))}
               </div>
               
-              <div className="grid grid-cols-7 gap-1 mt-1">
-                <div className="sticky left-0 p-2 bg-gray-100">
-                  <div className="text-sm font-medium text-center mb-2">Blockers</div>
+              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
+                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
+                  Blockers
                 </div>
                 {[...Array(5)].map((_, i) => (
-                  <div key={`blockers-${i}`} className="p-2 bg-amber-50 border border-amber-100 min-h-[100px]">
-                    {standups.filter(s => s.standupDate && 
-                      format(new Date(s.standupDate), 'EEE, MMM d') === 
-                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                    ).map(s => (
-                      <div key={`blockers-item-${s.id}`} className="text-xs mb-2">
-                        {s.blockers || "No blockers"}
-                      </div>
-                    ))}
+                  <div key={`blockers-${i}`} className="p-2 bg-amber-50 min-h-[100px]">
+                    {standups
+                      .filter(s => s.standupDate && 
+                        format(new Date(s.standupDate), 'EEE, MMM d') === 
+                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                      )
+                      .sort((a, b) => a.userId - b.userId)
+                      .map(s => (
+                        <div key={`blockers-item-${s.id}`} className="text-xs mb-2">
+                          {s.blockers ? 
+                            (s.blockers.slice(0, 40) + (s.blockers.length > 40 ? '...' : '')) : 
+                            "No blockers"}
+                        </div>
+                      ))
+                    }
                   </div>
                 ))}
               </div>
               
-              <div className="grid grid-cols-7 gap-1 mt-1">
-                <div className="sticky left-0 p-2 bg-gray-100 rounded-bl-md">
-                  <div className="text-sm font-medium text-center mb-2">Yesterday</div>
+              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
+                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
+                  Yesterday
                 </div>
                 {[...Array(5)].map((_, i) => (
-                  <div key={`yesterday-${i}`} className="p-2 bg-blue-50 border border-blue-100 min-h-[100px]">
-                    {standups.filter(s => s.standupDate && 
-                      format(new Date(s.standupDate), 'EEE, MMM d') === 
-                      format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                    ).map(s => (
-                      <div key={`yesterday-item-${s.id}`} className="text-xs mb-2">
-                        {s.yesterday}
-                      </div>
-                    ))}
+                  <div key={`yesterday-${i}`} className="p-2 bg-blue-50 min-h-[100px]">
+                    {standups
+                      .filter(s => s.standupDate && 
+                        format(new Date(s.standupDate), 'EEE, MMM d') === 
+                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
+                      )
+                      .sort((a, b) => a.userId - b.userId)
+                      .map(s => (
+                        <div key={`yesterday-item-${s.id}`} className="text-xs mb-2">
+                          {s.yesterday && s.yesterday.slice(0, 40) + (s.yesterday.length > 40 ? '...' : '')}
+                        </div>
+                      ))
+                    }
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex flex-col items-center justify-center flex-1">
               <p className="text-gray-500 mb-2">No standups data available for the week.</p>
               <Button onClick={() => setWeeklyViewOpen(false)} variant="outline" size="sm">
                 Close
@@ -866,13 +880,13 @@ export default function StandupList() {
             </div>
           )}
           
-          <div className="border-t pt-4 mt-auto flex justify-end">
-            <Button onClick={() => setWeeklyViewOpen(false)}>
+          <div className="mt-6 flex justify-center">
+            <Button onClick={() => setWeeklyViewOpen(false)} className="w-40">
               Close Weekly View
             </Button>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
