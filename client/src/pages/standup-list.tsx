@@ -791,84 +791,99 @@ export default function StandupList() {
           
           {standups && standups.length > 0 ? (
             <div className="flex-1 overflow-auto p-4 rounded-md bg-gray-50">
-              <div className="grid grid-cols-6 gap-1 mb-4">
-                <div className="p-3 bg-gray-100 rounded-tl-md flex items-center justify-center">
-                  <CalendarIcon className="h-5 w-5 text-gray-500" />
-                </div>
-                {['Monday, April 21', 'Tuesday, April 22', 'Wednesday, April 23', 'Thursday, April 24', 'Friday, April 25'].map((day, i) => (
-                  <div key={i} className="p-2 font-medium text-center bg-white border-b border-gray-200">
-                    <div>{day.split(',')[0]}</div>
-                    <div className="text-sm">April {21 + i}</div>
+              <div className="border border-gray-200 rounded-md overflow-hidden mb-4">
+                <div className="flex">
+                  <div className="w-40 p-3 bg-gray-100 flex items-center justify-center border-r border-gray-200">
+                    <CalendarIcon className="h-5 w-5 text-gray-500" />
                   </div>
-                ))}
+                  <div className="flex-1 grid grid-cols-5 divide-x divide-gray-200">
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day, i) => (
+                      <div key={i} className="p-2 font-medium text-center bg-white">
+                        <div>{day}</div>
+                        <div className="text-sm">April {21 + i}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               
-              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
-                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
-                  Today
-                </div>
-                {[...Array(5)].map((_, i) => (
-                  <div key={`today-${i}`} className="p-2 bg-emerald-50 min-h-[100px]">
-                    {standups
-                      .filter(s => s.standupDate && 
-                        format(new Date(s.standupDate), 'EEE, MMM d') === 
-                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                      )
-                      .sort((a, b) => a.userId - b.userId)
-                      .map(s => (
-                        <div key={`today-item-${s.id}`} className="text-xs mb-2">
-                          {s.today && s.today.slice(0, 40) + (s.today.length > 40 ? '...' : '')}
-                        </div>
-                      ))
-                    }
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                {/* Today row */}
+                <div className="flex border-b border-gray-200">
+                  <div className="p-4 bg-gray-100 border-r border-gray-200 font-medium w-40">
+                    Today
                   </div>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
-                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
-                  Blockers
-                </div>
-                {[...Array(5)].map((_, i) => (
-                  <div key={`blockers-${i}`} className="p-2 bg-amber-50 min-h-[100px]">
-                    {standups
-                      .filter(s => s.standupDate && 
-                        format(new Date(s.standupDate), 'EEE, MMM d') === 
-                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                      )
-                      .sort((a, b) => a.userId - b.userId)
-                      .map(s => (
-                        <div key={`blockers-item-${s.id}`} className="text-xs mb-2">
-                          {s.blockers ? 
-                            (s.blockers.slice(0, 40) + (s.blockers.length > 40 ? '...' : '')) : 
-                            "No blockers"}
-                        </div>
-                      ))
-                    }
+                  <div className="flex-1 grid grid-cols-5 divide-x divide-gray-200">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={`today-${i}`} className="p-3 bg-emerald-50 min-h-[100px]">
+                        {standups
+                          .filter(s => s.standupDate && 
+                            format(new Date(s.standupDate), 'yyyy-MM-dd') === 
+                            format(addDays(new Date('2025-04-21'), i), 'yyyy-MM-dd')
+                          )
+                          .map(s => (
+                            <div key={`today-item-${s.id}`} className="text-xs mb-3 p-1">
+                              <div className="font-medium mb-1">{s.firstName || s.username}</div>
+                              {s.today && s.today.slice(0, 50) + (s.today.length > 50 ? '...' : '')}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              
-              <div className="grid grid-cols-6 gap-1 border-t border-gray-200 pt-2">
-                <div className="sticky left-0 p-4 bg-gray-100 border-r border-gray-200 font-medium">
-                  Yesterday
                 </div>
-                {[...Array(5)].map((_, i) => (
-                  <div key={`yesterday-${i}`} className="p-2 bg-blue-50 min-h-[100px]">
-                    {standups
-                      .filter(s => s.standupDate && 
-                        format(new Date(s.standupDate), 'EEE, MMM d') === 
-                        format(addDays(new Date('2025-04-21'), i), 'EEE, MMM d')
-                      )
-                      .sort((a, b) => a.userId - b.userId)
-                      .map(s => (
-                        <div key={`yesterday-item-${s.id}`} className="text-xs mb-2">
-                          {s.yesterday && s.yesterday.slice(0, 40) + (s.yesterday.length > 40 ? '...' : '')}
-                        </div>
-                      ))
-                    }
+                
+                {/* Blockers row */}
+                <div className="flex border-b border-gray-200">
+                  <div className="p-4 bg-gray-100 border-r border-gray-200 font-medium w-40">
+                    Blockers
                   </div>
-                ))}
+                  <div className="flex-1 grid grid-cols-5 divide-x divide-gray-200">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={`blockers-${i}`} className="p-3 bg-amber-50 min-h-[100px]">
+                        {standups
+                          .filter(s => s.standupDate && 
+                            format(new Date(s.standupDate), 'yyyy-MM-dd') === 
+                            format(addDays(new Date('2025-04-21'), i), 'yyyy-MM-dd')
+                          )
+                          .map(s => (
+                            <div key={`blockers-item-${s.id}`} className="text-xs mb-3 p-1">
+                              <div className="font-medium mb-1">{s.firstName || s.username}</div>
+                              {s.blockers ? 
+                                (s.blockers.slice(0, 50) + (s.blockers.length > 50 ? '...' : '')) : 
+                                "No blockers"}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Yesterday row */}
+                <div className="flex">
+                  <div className="p-4 bg-gray-100 border-r border-gray-200 font-medium w-40">
+                    Yesterday
+                  </div>
+                  <div className="flex-1 grid grid-cols-5 divide-x divide-gray-200">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={`yesterday-${i}`} className="p-3 bg-blue-50 min-h-[100px]">
+                        {standups
+                          .filter(s => s.standupDate && 
+                            format(new Date(s.standupDate), 'yyyy-MM-dd') === 
+                            format(addDays(new Date('2025-04-21'), i), 'yyyy-MM-dd')
+                          )
+                          .map(s => (
+                            <div key={`yesterday-item-${s.id}`} className="text-xs mb-3 p-1">
+                              <div className="font-medium mb-1">{s.firstName || s.username}</div>
+                              {s.yesterday && s.yesterday.slice(0, 50) + (s.yesterday.length > 50 ? '...' : '')}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
