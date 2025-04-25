@@ -780,7 +780,7 @@ export default function StandupList() {
         open={weeklyViewOpen}
         onOpenChange={setWeeklyViewOpen}
       >
-        <SheetContent className="h-screen flex flex-col overflow-auto" side="right" size="full">
+        <SheetContent className="h-screen flex flex-col overflow-auto w-full max-w-full" side="right">
           <SheetHeader className="border-b pb-4 mb-4">
             <SheetTitle className="text-2xl">Weekly Standup Overview</SheetTitle>
             <SheetDescription>
@@ -866,11 +866,11 @@ export default function StandupList() {
             </div>
           )}
           
-          <SheetFooter className="border-t pt-4 mt-auto">
+          <div className="border-t pt-4 mt-auto flex justify-end">
             <Button onClick={() => setWeeklyViewOpen(false)}>
               Close Weekly View
             </Button>
-          </SheetFooter>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
