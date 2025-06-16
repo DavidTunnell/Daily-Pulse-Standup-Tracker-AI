@@ -37,24 +37,50 @@ archive.on('error', function(err) {
 // Pipe archive data to the file
 archive.pipe(output);
 
+// Helper function to safely add files/directories
+function safeAdd(type, source, dest) {
+  try {
+    if (fs.existsSync(source)) {
+      if (type === 'directory') {
+        archive.directory(source, dest);
+        console.log(`Added directory: ${source}`);
+      } else {
+        archive.file(source, { name: dest });
+        console.log(`Added file: ${source}`);
+      }
+    } else {
+      console.log(`Skipping ${source} - does not exist`);
+    }
+  } catch (err) {
+    console.warn(`Error adding ${source}:`, err.message);
+  }
+}
+
 // Add files and directories to the archive
 console.log('Adding files to archive...');
 
-// Add specific directories and files
-archive.directory('client/', 'client/');
-archive.directory('server/', 'server/');
-archive.directory('shared/', 'shared/');
-archive.directory('scripts/', 'scripts/');
+// Add specific directories that exist
+safeAdd('directory', 'client/', 'client/');
+safeAdd('directory', 'server/', 'server/');
+safeAdd('directory', 'shared/', 'shared/');
+safeAdd('directory', 'scripts/', 'scripts/');
 
-// Add individual files
-archive.file('package.json', { name: 'package.json' });
-archive.file('package-lock.json', { name: 'package-lock.json' });
-archive.file('tsconfig.json', { name: 'tsconfig.json' });
-archive.file('tailwind.config.ts', { name: 'tailwind.config.ts' });
-archive.file('postcss.config.js', { name: 'postcss.config.js' });
-archive.file('drizzle.config.ts', { name: 'drizzle.config.ts' });
-archive.file('vite.config.ts', { name: 'vite.config.ts' });
-archive.file('.gitignore', { name: '.gitignore' });
+// Add individual files that exist
+const filesToAdd = [
+  'package.json',
+  'package-lock.json', 
+  'tsconfig.json',
+  'tailwind.config.ts',
+  'postcss.config.js',
+  'drizzle.config.ts',
+  'vite.config.ts',
+  '.gitignore',
+  'README.md'
+];
+
+filesToAdd.forEach(file => {
+  safeAdd('file', file, file);
+});
 
 // Finalize the archive
 archive.finalize();
