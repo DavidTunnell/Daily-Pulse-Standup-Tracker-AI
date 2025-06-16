@@ -1,86 +1,42 @@
-
 const fs = require('fs');
 const path = require('path');
-const { createWriteStream } = require('fs');
 const archiver = require('archiver');
 
-console.log('Starting archive creation...');
+async function createZip() {
+  console.log('Creating zip archive...');
 
-// Create a file to stream archive data to
-const output = createWriteStream('daily-pulse-code.zip');
-const archive = archiver('zip', {
-  zlib: { level: 9 } // Sets the compression level
-});
+  const output = fs.createWriteStream('daily-pulse-code.zip');
+  const archive = archiver('zip', { zlib: { level: 9 } });
 
-// Listen for all archive data to be written
-output.on('close', function() {
-  console.log(archive.pointer() + ' total bytes');
-  console.log('Archive has been finalized and the output file descriptor has closed.');
-  console.log('daily-pulse-code.zip created successfully!');
-});
+  output.on('close', function() {
+    console.log(`Archive created: ${archive.pointer()} total bytes`);
+    console.log('✅ daily-pulse-code.zip created successfully!');
+  });
 
-// Good practice to catch warnings (ie stat failures and other non-blocking errors)
-archive.on('warning', function(err) {
-  if (err.code === 'ENOENT') {
-    console.warn('Warning:', err);
-  } else {
+  archive.on('error', function(err) {
+    console.error('❌ Archive error:', err);
     throw err;
-  }
-});
+  });
 
-// Good practice to catch this error explicitly
-archive.on('error', function(err) {
-  console.error('Archive error:', err);
-  throw err;
-});
+  archive.pipe(output);
 
-// Pipe archive data to the file
-archive.pipe(output);
+  // Add all files and directories, excluding unwanted ones
+  archive.glob('**/*', {
+    cwd: process.cwd(),
+    ignore: [
+      'node_modules/**',
+      '.git/**',
+      'dist/**',
+      '.config/**',
+      '*.zip',
+      '*.tar.gz',
+      'create-zip.js',
+      '.replit',
+      'replit.nix'
+    ]
+  });
 
-// Helper function to safely add files/directories
-function safeAdd(type, source, dest) {
-  try {
-    if (fs.existsSync(source)) {
-      if (type === 'directory') {
-        archive.directory(source, dest);
-        console.log(`Added directory: ${source}`);
-      } else {
-        archive.file(source, { name: dest });
-        console.log(`Added file: ${source}`);
-      }
-    } else {
-      console.log(`Skipping ${source} - does not exist`);
-    }
-  } catch (err) {
-    console.warn(`Error adding ${source}:`, err.message);
-  }
+  await archive.finalize();
 }
 
-// Add files and directories to the archive
-console.log('Adding files to archive...');
-
-// Add specific directories that exist
-safeAdd('directory', 'client/', 'client/');
-safeAdd('directory', 'server/', 'server/');
-safeAdd('directory', 'shared/', 'shared/');
-safeAdd('directory', 'scripts/', 'scripts/');
-
-// Add individual files that exist
-const filesToAdd = [
-  'package.json',
-  'package-lock.json', 
-  'tsconfig.json',
-  'tailwind.config.ts',
-  'postcss.config.js',
-  'drizzle.config.ts',
-  'vite.config.ts',
-  '.gitignore',
-  'README.md'
-];
-
-filesToAdd.forEach(file => {
-  safeAdd('file', file, file);
-});
-
-// Finalize the archive
-archive.finalize();
+createZip().catch(console.error);
